@@ -1,7 +1,8 @@
-const db = require('../config');
+const dbPromise = require('../config');
 
-module.exports = {
+export default {
   async up() {
+    const db = await dbPromise;
     const createTable = `
       CREATE TABLE IF NOT EXISTS senior_citizens (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -84,6 +85,8 @@ module.exports = {
   },
 
   async down() {
+    const db = await dbPromise;
     db.exec('DROP TABLE IF EXISTS senior_citizens');
+    console.log('senior_citizens table dropped');
   }
 };

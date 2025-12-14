@@ -1,7 +1,8 @@
-const db = require('../config');
+const dbPromise = require('../config');
 
-module.exports = {
+export default {
   async run() {
+    const db = await dbPromise;
     const insertStmt = db.prepare(`
       INSERT INTO senior_citizens (
         osca_id, last_name, first_name, date_of_birth, sex, 
@@ -29,6 +30,7 @@ module.exports = {
   },
 
   async down() {
+    const db = await dbPromise;
     db.exec("DELETE FROM senior_citizens WHERE osca_id LIKE 'OSCA-2023-%'");
     console.log('Sample senior citizens data removed!');
   }

@@ -1,4 +1,4 @@
-const db = require('./config.js');
+const dbPromise = require('./config.js');
 const bcrypt = require('bcryptjs');
 const DatabaseSeeder = require('./seeders/DatabaseSeeder');
 
@@ -10,6 +10,7 @@ async function runMigrations() {
   console.log('Running auto-migrations (fresh migrate + seed)...');
   
   try {
+    const db = await dbPromise;
     let databaseWasCreated = false;
     
     // Check if users table exists

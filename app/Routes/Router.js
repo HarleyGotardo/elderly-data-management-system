@@ -127,7 +127,20 @@ class Router {
   async handle(request) {
     const { method, path, body, query } = request;
     
-    const route = this.findRoute(method, path);
+    // Parse query parameters from URL if not provided
+    let cleanPath = path;
+    let queryParams = query || {};
+    
+    if (path.includes('?')) {
+      const [pathPart, queryString] = path.split('?');
+      cleanPath = pathPart;
+      
+      // Parse query string into object
+      const urlParams = new URLSearchParams(queryString);
+      queryParams = Object.fromEntries(urlParams.entries());
+    }
+    
+    const route = this.findRoute(method, cleanPath);
     
     if (!route) {
       return {
@@ -138,8 +151,9 @@ class Router {
 
     try {
       // Extract route parameters
-      const params = this.extractParams(path, route.path);
+      const params = this.extractParams(cleanPath, route.path);
       request.params = params;
+      request.query = queryParams;
 
       // Run middleware
       for (const middleware of route.middleware) {

@@ -1,4 +1,4 @@
-const db = require('../config.js');
+const dbPromise = require('../config.js');
 const bcrypt = require('bcryptjs');
 
 class UserSeeder {
@@ -9,6 +9,7 @@ class UserSeeder {
     console.log('Seeding users...');
     
     try {
+      const db = await dbPromise;
       // Clear existing users (optional - comment out if you want to keep existing)
       db.exec('DELETE FROM users');
       console.log('Cleared existing users');
@@ -60,6 +61,7 @@ class UserSeeder {
    */
   async clear() {
     console.log('Clearing users...');
+    const db = await dbPromise;
     db.exec('DELETE FROM users');
     console.log('✓ All users cleared');
   }

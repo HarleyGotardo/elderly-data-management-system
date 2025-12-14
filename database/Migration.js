@@ -1,14 +1,14 @@
 const fs = require('fs');
 const path = require('path');
-const db = require('./config');
+const dbPromise = require('./config');
 
 class Migration {
   constructor() {
     this.migrationsPath = path.join(__dirname, 'migrations');
-    this.ensureMigrationsTable();
   }
 
-  ensureMigrationsTable() {
+  async ensureMigrationsTable() {
+    const db = await dbPromise;
     const createTable = `
       CREATE TABLE IF NOT EXISTS migrations (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -20,12 +20,13 @@ class Migration {
     db.exec(createTable);
   }
 
+
   async createMigration(name) {
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
     const filename = timestamp + '_' + name + '.js';
     const filepath = path.join(this.migrationsPath, filename);
     
-    const template = 'const db = require(\'../config\');\n\nmodule.exports = {\n  async up() {\n    db.exec(\'CREATE TABLE IF NOT EXISTS example_table (id INTEGER PRIMARY KEY)\');\n  },\n  async down() {\n    db.exec(\'DROP TABLE IF EXISTS example_table\');\n  }\n};\n';
+    const template = 'import dbPromise from \'../config.js\';\n\nexport default {\n  async up() {\n    const db = await dbPromise;\n    db.exec(\'CREATE TABLE IF NOT EXISTS example_table (id INTEGER PRIMARY KEY)\');\n  },\n  async down() {\n    const db = await dbPromise;\n    db.exec(\'DROP TABLE IF EXISTS example_table\');\n  }\n};\n';
 
     fs.writeFileSync(filepath, template);
     console.log('Migration created: ' + filename);
@@ -33,11 +34,12 @@ class Migration {
   }
 
   async runMigrations() {
+    await this.ensureMigrationsTable();
     const migrationFiles = fs.readdirSync(this.migrationsPath)
       .filter(file => file.endsWith('.js'))
       .sort();
 
-    const executedMigrations = this.getExecutedMigrations();
+    const executedMigrations = await this.getExecutedMigrations();
     const pendingMigrations = migrationFiles.filter(file => !executedMigrations.includes(file));
 
     if (pendingMigrations.length === 0) {
@@ -45,7 +47,8 @@ class Migration {
       return;
     }
 
-    const batch = this.getNextBatchNumber();
+    const batch = await this.getNextBatchNumber();
+    const db = await dbPromise;
 
     for (const file of pendingMigrations) {
       try {
@@ -68,7 +71,8 @@ class Migration {
   }
 
   async rollbackLastBatch() {
-    const lastBatch = this.getLastBatchNumber();
+    const db = await dbPromise;
+    const lastBatch = await this.getLastBatchNumber();
     
     if (!lastBatch) {
       console.log('No migrations to rollback.');
@@ -88,6 +92,7 @@ class Migration {
           console.log('Rolling back migration: ' + migrationName);
           await migration.down();
 
+          const db = await dbPromise;
           const stmt = db.prepare('DELETE FROM migrations WHERE migration = ? AND batch = ?');
           stmt.run(migrationName, lastBatch);
 
@@ -102,23 +107,28 @@ class Migration {
     console.log('Rollback completed for batch: ' + lastBatch);
   }
 
-  getExecutedMigrations() {
-    const rows = db.prepare('SELECT migration FROM migrations').all();
-    return rows.map(row => row.migration);
+  async getExecutedMigrations() {
+    const db = await dbPromise;
+    const stmt = db.prepare('SELECT migration FROM migrations');
+    return stmt.all().map(row => row.migration);
   }
 
-  getNextBatchNumber() {
-    const result = db.prepare('SELECT MAX(batch) as max_batch FROM migrations').get();
-    return result.max_batch ? result.max_batch + 1 : 1;
+  async getNextBatchNumber() {
+    const db = await dbPromise;
+    const stmt = db.prepare('SELECT MAX(batch) as max_batch FROM migrations');
+    const result = stmt.get();
+    return (result.max_batch || 0) + 1;
   }
 
-  getLastBatchNumber() {
-    const result = db.prepare('SELECT MAX(batch) as max_batch FROM migrations').get();
+  async getLastBatchNumber() {
+    const db = await dbPromise;
+    const stmt = db.prepare('SELECT MAX(batch) as max_batch FROM migrations');
+    const result = stmt.get();
     return result.max_batch;
   }
 
   async reset() {
-    const migrations = this.getExecutedMigrations();
+    const migrations = await this.getExecutedMigrations();
     
     for (const migrationName of migrations.reverse()) {
       try {
@@ -134,6 +144,7 @@ class Migration {
       }
     }
 
+    const db = await dbPromise;
     db.exec('DELETE FROM migrations');
     console.log('Database reset completed.');
   }

@@ -1,6 +1,6 @@
 import Controller from './Controller.js';
 import bcrypt from 'bcryptjs';
-import db from '../../database/config.js';
+import dbPromise from '../../database/config.js';
 
 class UserController extends Controller {
   /**
@@ -8,6 +8,7 @@ class UserController extends Controller {
    */
   async index(request) {
     try {
+      const db = await dbPromise;
       const { role } = request.query || {};
       
       let query = 'SELECT id, username, role, created_at, updated_at FROM users';
@@ -44,6 +45,7 @@ class UserController extends Controller {
    */
   async show(request) {
     try {
+      const db = await dbPromise;
       const userId = parseInt(request.params.id);
       
       if (!userId) {
@@ -84,6 +86,7 @@ class UserController extends Controller {
    */
   async store(request) {
     try {
+      const db = await dbPromise;
       const { username, password, role } = request.body;
       
       if (!username || !password || !role) {
@@ -147,6 +150,7 @@ class UserController extends Controller {
    */
   async update(request) {
     try {
+      const db = await dbPromise;
       const userId = parseInt(request.params.id);
       const { username, password, role } = request.body;
       
@@ -234,6 +238,7 @@ class UserController extends Controller {
    */
   async destroy(request) {
     try {
+      const db = await dbPromise;
       const userId = parseInt(request.params.id);
       
       if (!userId) {

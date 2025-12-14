@@ -1,11 +1,10 @@
 import Controller from './Controller.js';
 import SupabaseSyncService from '../../src/services/SupabaseSyncService.js';
-import db from '../../database/config.js';
+import dbPromise from '../../database/config.js';
 
 class SyncController extends Controller {
   constructor() {
     super();
-    this.db = db;
   }
 
   /**
@@ -13,10 +12,11 @@ class SyncController extends Controller {
    */
   async syncToSupabase(request) {
     return this.handle(async () => {
+      const db = await dbPromise;
       const { lgu_id } = request.params;
       
       // Initialize sync service
-      const syncService = new SupabaseSyncService(this.db, lgu_id);
+      const syncService = new SupabaseSyncService(db, lgu_id);
       
       // Check connectivity first
       const isConnected = await syncService.checkConnectivity();
@@ -40,10 +40,11 @@ class SyncController extends Controller {
    */
   async fullSync(request) {
     return this.handle(async () => {
+      const db = await dbPromise;
       const { lgu_id } = request.params;
       
       // Initialize sync service
-      const syncService = new SupabaseSyncService(this.db, lgu_id);
+      const syncService = new SupabaseSyncService(db, lgu_id);
       
       // Check connectivity first
       const isConnected = await syncService.checkConnectivity();
@@ -67,10 +68,11 @@ class SyncController extends Controller {
    */
   async getSyncHistory(request) {
     try {
+      const db = await dbPromise;
       const { lgu_id } = request.params;
       const { limit = 10 } = request.query;
       
-      const history = this.db.prepare(`
+      const history = db.prepare(`
         SELECT * FROM sync_log 
         WHERE lgu_id = ? 
         ORDER BY created_at DESC 
@@ -94,12 +96,13 @@ class SyncController extends Controller {
    */
   async exportToUSB(request) {
     try {
+      const db = await dbPromise;
       const { lgu_id } = request.params;
       const { include_drafts, include_requirements, password } = request.body;
       
       // Import USBExportService dynamically
       const { default: USBExportService } = await import('../../src/services/USBExportService.js');
-      const exportService = new USBExportService(this.db, lgu_id);
+      const exportService = new USBExportService(db, lgu_id);
       
       const result = await exportService.exportToUSB({
         includeDrafts: include_drafts || false,
@@ -151,7 +154,8 @@ class SyncController extends Controller {
       fs.writeFileSync(tempFile, file_data, 'base64');
       
       // Import the file
-      const importService = new USBImportService(this.db, lgu_id);
+      const db = await dbPromise;
+      const importService = new USBImportService(db, lgu_id);
       const result = await importService.importFromUSB(tempFile, password);
       
       // Clean up temp file
@@ -174,10 +178,11 @@ class SyncController extends Controller {
    */
   async forceSync(request) {
     try {
+      const db = await dbPromise;
       const { lgu_id } = request.params;
       
       // Initialize Supabase sync service
-      const syncService = new SupabaseSyncService(this.db, lgu_id);
+      const syncService = new SupabaseSyncService(db, lgu_id);
       
       // Check connectivity first
       const isOnline = await syncService.checkConnectivity();
@@ -215,10 +220,11 @@ class SyncController extends Controller {
    */
   async submitToAdmin(request) {
     try {
+      const db = await dbPromise;
       const { record_id } = request.params;
       const { lgu_id } = request.body;
       
-      const syncService = new SupabaseSyncService(this.db, lgu_id);
+      const syncService = new SupabaseSyncService(db, lgu_id);
       const result = await syncService.submitToAdmin(record_id);
       
       return result;
@@ -235,9 +241,10 @@ class SyncController extends Controller {
    */
   async checkConnectivity(request) {
     try {
+      const db = await dbPromise;
       const { lgu_id } = request.params;
       
-      const syncService = new SupabaseSyncService(this.db, lgu_id);
+      const syncService = new SupabaseSyncService(db, lgu_id);
       const isOnline = await syncService.checkConnectivity();
       
       return {
@@ -259,14 +266,15 @@ class SyncController extends Controller {
    */
   async checkDuplicates(request) {
     try {
+      const db = await dbPromise;
       const { record_id } = request.params;
       
       // Import DuplicateDetectionService dynamically
       const { default: DuplicateDetectionService } = await import('../../src/services/DuplicateDetectionService.js');
-      const duplicateService = new DuplicateDetectionService(this.db);
+      const duplicateService = new DuplicateDetectionService(db);
       
       // Get the record to check
-      const record = this.db.prepare(`
+      const record = db.prepare(`
         SELECT * FROM senior_citizens WHERE id = ?
       `).get(record_id);
       
@@ -304,11 +312,12 @@ class SyncController extends Controller {
    */
   async markAsDuplicates(request) {
     try {
+      const db = await dbPromise;
       const { record_ids } = request.body;
       
       // Mark records as duplicates
       const placeholders = record_ids.map(() => '?').join(',');
-      const stmt = this.db.prepare(`
+      const stmt = db.prepare(`
         UPDATE senior_citizens 
         SET sync_status = 'DUPLICATE',
             updated_at = CURRENT_TIMESTAMP

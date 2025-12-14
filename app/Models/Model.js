@@ -1,4 +1,4 @@
-import db from '../../database/config.js';
+import dbPromise from '../../database/config.js';
 
 class Model {
   constructor(attributes = {}) {
@@ -15,7 +15,8 @@ class Model {
     return 'id';
   }
 
-  static find(id) {
+  static async find(id) {
+    const db = await dbPromise;
     const stmt = db.prepare(`SELECT * FROM ${this.tableName} WHERE ${this.primaryKey} = ?`);
     const row = stmt.get(id);
     if (!row) return null;
@@ -24,7 +25,8 @@ class Model {
     return model;
   }
 
-  static all() {
+  static async all() {
+    const db = await dbPromise;
     const stmt = db.prepare(`SELECT * FROM ${this.tableName}`);
     const rows = stmt.all();
     return rows.map(row => {
@@ -34,7 +36,8 @@ class Model {
     });
   }
 
-  static where(column, operator, value) {
+  static async where(column, operator, value) {
+    const db = await dbPromise;
     const stmt = db.prepare(`SELECT * FROM ${this.tableName} WHERE ${column} ${operator} ?`);
     const rows = stmt.all(value);
     return rows.map(row => {
@@ -44,31 +47,35 @@ class Model {
     });
   }
 
-  static create(attributes) {
+  static async create(attributes) {
+    const db = await dbPromise;
     const columns = Object.keys(attributes);
     const placeholders = columns.map(() => '?').join(', ');
     const sql = `INSERT INTO ${this.tableName} (${columns.join(', ')}) VALUES (${placeholders})`;
     const stmt = db.prepare(sql);
     const result = stmt.run(...Object.values(attributes));
-    return this.find(result.lastInsertRowid);
+    return await this.find(result.lastInsertRowid);
   }
 
-  static update(id, attributes) {
+  static async update(id, attributes) {
+    const db = await dbPromise;
     const columns = Object.keys(attributes);
     const setClause = columns.map(col => `${col} = ?`).join(', ');
     const sql = `UPDATE ${this.tableName} SET ${setClause} WHERE ${this.primaryKey} = ?`;
     const stmt = db.prepare(sql);
     stmt.run(...Object.values(attributes), id);
-    return this.find(id);
+    return await this.find(id);
   }
 
-  static delete(id) {
+  static async delete(id) {
+    const db = await dbPromise;
     const stmt = db.prepare(`DELETE FROM ${this.tableName} WHERE ${this.primaryKey} = ?`);
     const result = stmt.run(id);
     return result.changes > 0;
   }
 
-  save() {
+  async save() {
+    const db = await dbPromise;
     if (this.exists) {
       // Exclude generated columns and admin-only columns for updates
       const excludedColumns = [
@@ -107,8 +114,9 @@ class Model {
     return this;
   }
 
-  destroy() {
+  async destroy() {
     if (!this.exists) return false;
+    const db = await dbPromise;
     const stmt = db.prepare(`DELETE FROM ${this.constructor.tableName} WHERE ${this.constructor.primaryKey} = ?`);
     const result = stmt.run(this.attributes[this.constructor.primaryKey]);
     if (result.changes > 0) {
@@ -118,7 +126,7 @@ class Model {
     return false;
   }
 
-  update(attributes) {
+  async update(attributes) {
     if (!this.exists) return false;
     // Merge new attributes with existing ones
     Object.assign(this.attributes, attributes);
@@ -143,6 +151,7 @@ class Model {
     if (columns.length === 0) return this;
     const setClause = columns.map(col => `${col} = ?`).join(', ');
     const sql = `UPDATE ${this.constructor.tableName} SET ${setClause} WHERE ${this.constructor.primaryKey} = ?`;
+    const db = await dbPromise;
     const stmt = db.prepare(sql);
     stmt.run(...Object.values(attrs), this.attributes[this.constructor.primaryKey]);
     this.original = { ...this.attributes };

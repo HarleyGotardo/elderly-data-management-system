@@ -2,11 +2,102 @@ const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 import router from '../app/Routes/web.js';
 
-const createWindow = () => {
+const fs = require('fs');
+const initSqlJs = require('sql.js');
+
+let dbPath;
+let SQL;
+let db;
+
+// Initialize sql.js
+async function initDatabase() {
+  try {
+    // Load sql.js
+    SQL = await initSqlJs({
+      locateFile: file => path.join(__dirname, '../node_modules/sql.js/dist', file)
+    });
+    console.log('sql.js loaded successfully');
+  } catch (error) {
+    console.error('Failed to load sql.js:', error);
+    throw error;
+  }
+}
+
+async function initializeDatabase() {
+  try {
+    // Initialize sql.js first
+    await initDatabase();
+    
+    // Set database path based on environment
+    const isDev = process.env.NODE_ENV === 'development';
+    
+    if (isDev) {
+      // Use process.cwd() for development to get project root
+      dbPath = path.join(process.cwd(), 'database', 'database.sqlite');
+    } else {
+      const userDataPath = app.getPath('userData');
+      dbPath = path.join(userDataPath, 'database.sqlite');
+      
+      // Ensure directory exists
+      if (!fs.existsSync(userDataPath)) {
+        fs.mkdirSync(userDataPath, { recursive: true });
+      }
+    }
+    
+    // Load or create database
+    if (fs.existsSync(dbPath)) {
+      console.log('Loading existing database from:', dbPath);
+      const buffer = fs.readFileSync(dbPath);
+      db = new SQL.Database(buffer);
+    } else {
+      console.log('Creating new database at:', dbPath);
+      db = new SQL.Database();
+      
+      // Create tables
+      db.run(`
+        CREATE TABLE IF NOT EXISTS senior_citizens (
+          id INTEGER PRIMARY KEY AUTOINCREMENT
+        )
+      `);
+      
+      // Save database to file
+      const data = db.export();
+      fs.writeFileSync(dbPath, data);
+      console.log('Database created successfully');
+    }
+    
+    console.log('Database initialized successfully');
+  } catch (error) {
+    console.error('Database initialization failed:', error);
+    console.error('Stack:', error.stack);
+    // Don't throw - allow app to continue without database
+  }
+}
+
+// Save database periodically
+function saveDatabase() {
+  if (db && dbPath) {
+    try {
+      const data = db.export();
+      fs.writeFileSync(dbPath, data);
+      console.log('Database saved');
+    } catch (error) {
+      console.error('Failed to save database:', error);
+    }
+  }
+}
+
+// Save database every 5 seconds
+setInterval(saveDatabase, 5000);
+
+const createWindow = async () => {
+  // Initialize database before creating window
+  await initializeDatabase();
+
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 1200,
+    height: 800,
     icon: path.join(process.cwd(), 'resources/icon.png'),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
@@ -22,8 +113,15 @@ const createWindow = () => {
     mainWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`));
   }
 
-  // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+  // Open the DevTools in development
+  if (process.env.NODE_ENV === 'development') {
+    mainWindow.webContents.openDevTools();
+  }
+
+  // Pass database path to renderer
+  ipcMain.handle('get-database-path', () => {
+    return dbPath;
+  });
 };
 
 // Create window when app is ready

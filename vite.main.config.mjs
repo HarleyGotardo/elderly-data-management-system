@@ -18,19 +18,25 @@ export default defineConfig({
   build: {
     rollupOptions: {
       external: [
-        'better-sqlite3', 
+        'sql.js',
+        'electron',
         'electron-squirrel-startup', 
         '@supabase/supabase-js',
         'crypto',
         'fs',
         'path',
         'os',
-        'uuid'
+        'uuid',
+        /^node:.*/  // Externalize all Node.js built-in modules
       ],
       output: {
         format: 'cjs',
-        inlineDynamicImports: true // Bundle all dynamic imports into main.js
+        inlineDynamicImports: false, // Don't inline dynamic imports
+        manualChunks: undefined
       }
+    },
+    commonjsOptions: {
+      ignoreDynamicRequires: false
     }
   }
 });

@@ -5,7 +5,7 @@ const SeniorCitizenList = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [syncing, setSyncing] = useState(false);
@@ -55,22 +55,17 @@ const SeniorCitizenList = () => {
   };
   const [stats, setStats] = useState(null);
 
-  useEffect(() => {
-    fetchSeniorCitizens();
-    fetchStats();
-  }, [currentPage, statusFilter]);
-
-  const fetchSeniorCitizens = async (page = currentPage) => {
+  const fetchSeniorCitizens = async (page = currentPage, status = statusFilter, search = searchTerm) => {
     try {
       setLoading(true);
       const query = { page, limit: 10 };
       
-      if (searchTerm) {
-        query.search = searchTerm;
+      if (search) {
+        query.search = search;
       }
       
-      if (statusFilter) {
-        query.status = statusFilter;
+      if (status) {
+        query.status = status;
       }
       
       const response = await window.electronAPI.request({
@@ -80,8 +75,15 @@ const SeniorCitizenList = () => {
       });
       
       if (response.data && response.data.success) {
-        setSeniorCitizens(response.data.data.data || []);
-        setTotalPages(response.data.data.pagination?.total_pages || 1);
+        const responseData = response.data.data;
+        
+        if (responseData && responseData.data) {
+          setSeniorCitizens(responseData.data);
+          setTotalPages(responseData.pagination?.total_pages || 1);
+        } else {
+          setSeniorCitizens(responseData || []);
+          setTotalPages(1);
+        }
         setError('');
       } else {
         setError(response.data?.message || 'Failed to fetch data');
@@ -92,6 +94,12 @@ const SeniorCitizenList = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    console.log('⚡ useEffect TRIGGERED:', { currentPage, statusFilter });
+    fetchSeniorCitizens(currentPage, statusFilter, '');
+    fetchStats();
+  }, [currentPage, statusFilter]);
 
   const fetchStats = async () => {
     try {
@@ -110,12 +118,15 @@ const SeniorCitizenList = () => {
 
   const handleSearch = async () => {
     setCurrentPage(1);
-    fetchSeniorCitizens(1);
+    fetchSeniorCitizens(1, statusFilter, searchTerm);
   };
 
   const handleStatusFilter = (status) => {
+    console.log('🎯 STATUS FILTER CLICKED:', status);
+    console.log('📊 Current state before update:', { statusFilter, currentPage });
     setStatusFilter(status);
     setCurrentPage(1);
+    console.log('✅ State update called');
   };
 
   const handleDelete = async (id) => {
@@ -130,7 +141,7 @@ const SeniorCitizenList = () => {
       });
       
       if (response.data && response.data.success) {
-        fetchSeniorCitizens(currentPage);
+        fetchSeniorCitizens(currentPage, statusFilter, searchTerm);
         fetchStats();
       } else {
         setError(response.data?.message || 'Operation failed');
@@ -152,7 +163,7 @@ const SeniorCitizenList = () => {
       });
       
       if (response.data && response.data.success) {
-        fetchSeniorCitizens(currentPage);
+        fetchSeniorCitizens(currentPage, statusFilter, searchTerm);
         fetchStats();
       } else {
         setError(response.data?.message || 'Operation failed');
@@ -178,7 +189,7 @@ const SeniorCitizenList = () => {
       
       if (response.data && response.data.success) {
         setSyncMessage(response.data.message);
-        fetchSeniorCitizens(currentPage);
+        fetchSeniorCitizens(currentPage, statusFilter, searchTerm);
         fetchStats();
       } else {
         setError(response.data?.message || 'Sync failed');
@@ -245,7 +256,7 @@ const SeniorCitizenList = () => {
         
         if (response.data && response.data.success) {
           alert(`Import completed. Updated ${response.data.data?.updated_count || 0} records.`);
-          fetchSeniorCitizens(currentPage);
+          fetchSeniorCitizens(currentPage, statusFilter, searchTerm);
           fetchStats();
         } else {
           setError(response.data?.message || 'Import failed');
@@ -345,7 +356,7 @@ const SeniorCitizenList = () => {
             onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
           />
           <button onClick={handleSearch}>Search</button>
-          <button onClick={() => { setSearchTerm(''); setCurrentPage(1); fetchSeniorCitizens(1); }}>Clear</button>
+          <button onClick={() => { setSearchTerm(''); setCurrentPage(1); fetchSeniorCitizens(1, statusFilter, ''); }}>Clear</button>
         </div>
         
         <div className="filter-bar">
@@ -389,7 +400,7 @@ const SeniorCitizenList = () => {
           Import Updates
         </button>
         <button onClick={handleSync} disabled={syncing} className="sync-btn">
-          {syncing ? 'Syncing...' : 'Sync to Supabase'}
+          {syncing ? 'Syncing...' : 'Sync to Online Database'}
         </button>
       </div>
 

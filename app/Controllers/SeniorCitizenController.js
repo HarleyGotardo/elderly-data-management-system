@@ -1,6 +1,6 @@
 import Controller from './Controller.js';
 import SeniorCitizen from '../Models/SeniorCitizen.js';
-import db from '../../database/config.js';
+import dbPromise from '../../database/config.js';
 
 class SeniorCitizenController extends Controller {
   constructor() {
@@ -33,16 +33,20 @@ class SeniorCitizenController extends Controller {
       
       if (search) {
         // Search by name
-        seniors = SeniorCitizen.where('full_name', 'LIKE', `%${search}%`);
-        total = seniors.length;
-      } else if (status) {
+        const allSeniors = await SeniorCitizen.where('full_name', 'LIKE', `%${search}%`);
+        total = allSeniors.length;
+        // Apply pagination to search results
+        seniors = allSeniors.slice(offset, offset + limit);
+      } else if (status && status !== 'all') {
         // Filter by status
-        seniors = SeniorCitizen.getByStatus(status, lguId);
-        total = seniors.length;
+        const allSeniors = await SeniorCitizen.getByStatus(status, lguId);
+        total = allSeniors.length;
+        // Apply pagination to filtered results
+        seniors = allSeniors.slice(offset, offset + limit);
       } else {
         // Get all for LGU
-        seniors = SeniorCitizen.getByLgu(lguId, limit, offset);
-        total = SeniorCitizen.where('lgu_id', '=', lguId).length;
+        seniors = await SeniorCitizen.getByLgu(lguId, limit, offset);
+        total = (await SeniorCitizen.where('lgu_id', '=', lguId)).length;
       }
       
       const paginatedSeniors = this.paginate(seniors, total, page, limit);
@@ -62,7 +66,7 @@ class SeniorCitizenController extends Controller {
         return this.error('ID is required', 400);
       }
       
-      const senior = SeniorCitizen.find(id);
+      const senior = await SeniorCitizen.find(id);
       
       if (!senior) {
         return this.error('Senior citizen not found', 404);
@@ -91,6 +95,7 @@ class SeniorCitizenController extends Controller {
       
       // Use SyncWorkflowService for validation and creation
       const WorkflowService = await this.getWorkflowService();
+      const db = await dbPromise;
       const workflow = new WorkflowService(db, lguId);
       
       const result = await workflow.addApplicant(data);
@@ -100,7 +105,7 @@ class SeniorCitizenController extends Controller {
       }
       
       // Return the created record
-      const senior = SeniorCitizen.find(result.recordId);
+      const senior = await SeniorCitizen.find(result.recordId);
       
       return this.success(senior.toJSON(), 'Senior citizen created successfully');
     });
@@ -118,7 +123,7 @@ class SeniorCitizenController extends Controller {
         return this.error('ID is required', 400);
       }
       
-      const senior = SeniorCitizen.find(id);
+      const senior = await SeniorCitizen.find(id);
       
       if (!senior) {
         return this.error('Senior citizen not found', 404);
@@ -177,7 +182,7 @@ class SeniorCitizenController extends Controller {
         return this.error('ID is required', 400);
       }
       
-      const senior = SeniorCitizen.find(id);
+      const senior = await SeniorCitizen.find(id);
       
       if (!senior) {
         return this.error('Senior citizen not found', 404);
@@ -200,7 +205,7 @@ class SeniorCitizenController extends Controller {
       }
       
       // Delete senior citizen
-      senior.delete();
+      await senior.destroy();
       
       return this.success(null, 'Senior citizen deleted successfully');
     });
@@ -222,6 +227,7 @@ class SeniorCitizenController extends Controller {
       
       // Use SyncWorkflowService for submission
       const WorkflowService = await this.getWorkflowService();
+      const db = await dbPromise;
       const workflow = new WorkflowService(db, lguId);
       
       const result = await workflow.submitToAdmin(id);
@@ -231,7 +237,7 @@ class SeniorCitizenController extends Controller {
       }
       
       // Return the updated record
-      const senior = SeniorCitizen.find(id);
+      const senior = await SeniorCitizen.find(id);
       
       return this.success(senior.toJSON(), result.message);
     });
@@ -265,7 +271,7 @@ class SeniorCitizenController extends Controller {
         params.push(dateTo);
       }
       
-      const db = require('../../database/config');
+      const db = await dbPromise;
       const stmt = db.prepare(query);
       const records = stmt.all(...params);
       
@@ -303,7 +309,7 @@ class SeniorCitizenController extends Controller {
       
       for (const update of updates) {
         try {
-          const senior = SeniorCitizen.find(update.id);
+          const senior = await SeniorCitizen.find(update.id);
           
           if (!senior || senior.get('lgu_id') !== lguId) {
             errors.push(`Record ID ${update.id} not found or access denied`);
@@ -348,7 +354,7 @@ class SeniorCitizenController extends Controller {
     return this.handle(async () => {
       const lguId = 1; // TODO: Get from authenticated user
       
-      const db = require('../../database/config');
+      const db = await dbPromise;
       
       // Get counts by status
       const statusCounts = db.prepare(`

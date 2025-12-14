@@ -55,6 +55,18 @@ const SeniorCitizenForm = ({ seniorId, onSave, onCancel }) => {
     }
   }, [seniorId]);
 
+  // Safety mechanism: Auto-reset loading state after 10 seconds to prevent stuck disabled fields
+  useEffect(() => {
+    if (loading) {
+      const timeout = setTimeout(() => {
+        console.warn('Loading state auto-reset after timeout - preventing stuck disabled fields');
+        setLoading(false);
+      }, 10000); // 10 seconds timeout
+      
+      return () => clearTimeout(timeout);
+    }
+  }, [loading]);
+
   useEffect(() => {
     // Calculate age when date of birth changes
     if (formData.date_of_birth) {
@@ -98,8 +110,10 @@ const SeniorCitizenForm = ({ seniorId, onSave, onCancel }) => {
         setErrors({ general: response.data?.message || 'Failed to fetch senior citizen data' });
       }
     } catch (err) {
+      console.error('Error fetching senior citizen:', err);
       setErrors({ general: 'Failed to fetch senior citizen data' });
     } finally {
+      // ALWAYS reset loading to false, even if there's an error
       setLoading(false);
     }
   };
@@ -306,6 +320,9 @@ const SeniorCitizenForm = ({ seniorId, onSave, onCancel }) => {
           showConfirmButton: false
         });
         
+        // Reset loading before navigation/callback
+        setLoading(false);
+        
         if (onSave) {
           onSave(response.data.data);
         } else {
@@ -315,6 +332,10 @@ const SeniorCitizenForm = ({ seniorId, onSave, onCancel }) => {
       } else {
         // Show error message
         console.log('Error response data:', response.data);
+        
+        // Reset loading before showing error dialog
+        setLoading(false);
+        
         await Swal.fire({
           icon: 'error',
           title: 'Error',
@@ -330,8 +351,18 @@ const SeniorCitizenForm = ({ seniorId, onSave, onCancel }) => {
         }
       }
     } catch (err) {
+      console.error('Error submitting form:', err);
       setErrors({ general: 'Failed to save senior citizen' });
+      
+      // Show error alert
+      await Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'An unexpected error occurred. Please try again.',
+        confirmButtonColor: '#3085d6'
+      });
     } finally {
+      // ALWAYS reset loading to false, even if there's an error
       setLoading(false);
     }
   };

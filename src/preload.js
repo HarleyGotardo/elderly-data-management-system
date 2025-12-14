@@ -6,13 +6,18 @@ const { contextBridge, ipcRenderer } = require('electron');
 // Expose API to renderer process
 contextBridge.exposeInMainWorld('electronAPI', {
   request: (options) => {
-    // Convert fetch-style options to IPC format
-    const url = new URL(options.url, 'http://localhost');
+    // Build query string from query object if provided
+    let queryString = '';
+    if (options.query && Object.keys(options.query).length > 0) {
+      const params = new URLSearchParams(options.query);
+      queryString = '?' + params.toString();
+    }
+    
     return ipcRenderer.invoke('api-request', {
       method: options.method || 'GET',
-      path: url.pathname + url.search,
+      path: options.url + queryString,
       body: options.body,
-      query: Object.fromEntries(url.searchParams)
+      query: options.query || {}
     });
   },
   

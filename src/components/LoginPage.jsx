@@ -6,7 +6,7 @@ const LoginPage = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
+  const { login, loading: authLoading } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -135,7 +135,7 @@ const LoginPage = () => {
                 e.target.style.boxShadow = 'inset 0 2px 4px rgba(0, 0, 0, 0.15), inset 0 1px 2px rgba(0, 0, 0, 0.1)';
               }}
               placeholder="Enter your username"
-              disabled={loading}
+              disabled={loading || authLoading}
             />
           </div>
 
@@ -178,17 +178,17 @@ const LoginPage = () => {
                 e.target.style.boxShadow = 'inset 0 2px 4px rgba(0, 0, 0, 0.15), inset 0 1px 2px rgba(0, 0, 0, 0.1)';
               }}
               placeholder="Enter your password"
-              disabled={loading}
+              disabled={loading || authLoading}
             />
           </div>
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || authLoading}
             style={{
               width: '100%',
               padding: '14px',
-              background: loading 
+              background: (loading || authLoading) 
                 ? '#666' 
                 : '#1e3a8a',
               color: 'white',
@@ -196,7 +196,7 @@ const LoginPage = () => {
               borderRadius: '0',
               fontSize: '14px',
               fontWeight: '700',
-              cursor: loading ? 'not-allowed' : 'pointer',
+              cursor: (loading || authLoading) ? 'not-allowed' : 'pointer',
               transition: 'all 0.2s ease',
               fontFamily: "'Courier New', monospace",
               textTransform: 'uppercase',
@@ -205,7 +205,7 @@ const LoginPage = () => {
               outline: 'none'
             }}
             onMouseOver={(e) => {
-              if (!loading) {
+              if (!loading && !authLoading) {
                 e.target.style.background = '#fff';
                 e.target.style.color = '#1e3a8a';
                 e.target.style.transform = 'translateY(-2px)';
@@ -213,7 +213,7 @@ const LoginPage = () => {
               }
             }}
             onMouseOut={(e) => {
-              if (!loading) {
+              if (!loading && !authLoading) {
                 e.target.style.background = '#1e3a8a';
                 e.target.style.color = 'white';
                 e.target.style.transform = 'translateY(0)';
@@ -221,13 +221,13 @@ const LoginPage = () => {
               }
             }}
             onMouseDown={(e) => {
-              if (!loading) {
+              if (!loading && !authLoading) {
                 e.target.style.transform = 'translateY(0)';
                 e.target.style.boxShadow = 'none';
               }
             }}
           >
-            {loading ? 'LOGGING IN...' : 'LOGIN'}
+            {(loading || authLoading) ? 'LOADING...' : 'LOGIN'}
           </button>
         </form>
 

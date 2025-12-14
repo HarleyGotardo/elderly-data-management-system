@@ -88,6 +88,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('authSession');
     setCurrentUser(null);
     setError(null);
+    setLoading(false); // Reset loading state on logout
   };
 
   const hasRole = (role) => {

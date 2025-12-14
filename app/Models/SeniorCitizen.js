@@ -1,5 +1,5 @@
 import Model from './Model.js';
-import db from '../../database/config.js';
+import dbPromise from '../../database/config.js';
 
 class SeniorCitizen extends Model {
   static get tableName() {
@@ -9,7 +9,8 @@ class SeniorCitizen extends Model {
   /**
    * Find senior citizen by OSCA ID
    */
-  static findByOscaId(oscaId) {
+  static async findByOscaId(oscaId) {
+    const db = await dbPromise;
     const stmt = db.prepare(`SELECT * FROM ${this.tableName} WHERE osca_id = ?`);
     const rows = stmt.all(oscaId);
     
@@ -23,7 +24,8 @@ class SeniorCitizen extends Model {
   /**
    * Find senior citizen by NCSC RRN
    */
-  static findByNcscRrn(rrn) {
+  static async findByNcscRrn(rrn) {
+    const db = await dbPromise;
     const stmt = db.prepare(`SELECT * FROM ${this.tableName} WHERE ncsc_rrn = ?`);
     const rows = stmt.all(rrn);
     
@@ -37,7 +39,8 @@ class SeniorCitizen extends Model {
   /**
    * Check for duplicate within LGU (Name + DOB)
    */
-  static checkDuplicateInLgu(fullName, dateOfBirth, lguId) {
+  static async checkDuplicateInLgu(fullName, dateOfBirth, lguId) {
+    const db = await dbPromise;
     const stmt = db.prepare(`
       SELECT * FROM ${this.tableName} 
       WHERE full_name = ? AND date_of_birth = ? AND lgu_id = ?
@@ -54,7 +57,8 @@ class SeniorCitizen extends Model {
   /**
    * Get seniors by LGU
    */
-  static getByLgu(lguId, limit = null, offset = 0) {
+  static async getByLgu(lguId, limit = null, offset = 0) {
+    const db = await dbPromise;
     let query = `SELECT * FROM ${this.tableName} WHERE lgu_id = ? ORDER BY created_at DESC`;
     let params = [lguId];
     
@@ -76,7 +80,8 @@ class SeniorCitizen extends Model {
   /**
    * Get count by status for LGU
    */
-  static getCountByStatus(lguId) {
+  static async getCountByStatus(lguId) {
+    const db = await dbPromise;
     const stmt = db.prepare(`
       SELECT status, COUNT(*) as count 
       FROM ${this.tableName} 
@@ -89,7 +94,8 @@ class SeniorCitizen extends Model {
   /**
    * Search seniors by name
    */
-  static searchByName(searchTerm, lguId = null, limit = null) {
+  static async searchByName(searchTerm, lguId = null, limit = null) {
+    const db = await dbPromise;
     let query = `SELECT * FROM ${this.tableName} WHERE full_name LIKE ?`;
     let params = [`%${searchTerm}%`];
     
@@ -117,7 +123,8 @@ class SeniorCitizen extends Model {
   /**
    * Get vulnerable sector statistics
    */
-  static getVulnerableStats(lguId) {
+  static async getVulnerableStats(lguId) {
+    const db = await dbPromise;
     const stmt = db.prepare(`
       SELECT 
         COUNT(CASE WHEN is_ip = 1 THEN 1 END) as ip_count,
@@ -133,7 +140,8 @@ class SeniorCitizen extends Model {
   /**
    * Get seniors by status
    */
-  static getByStatus(status, lguId = null) {
+  static async getByStatus(status, lguId = null) {
+    const db = await dbPromise;
     let query = `SELECT * FROM ${this.tableName} WHERE status = ?`;
     let params = [status];
     

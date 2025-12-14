@@ -1,4 +1,4 @@
-const db = require('../config.js');
+const dbPromise = require('../config.js');
 const bcrypt = require('bcryptjs');
 const UserSeeder = require('./UserSeeder.js');
 const SeniorCitizenSeeder = require('./SeniorCitizenSeeder.js');

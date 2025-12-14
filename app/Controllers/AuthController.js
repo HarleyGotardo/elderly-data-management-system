@@ -1,6 +1,6 @@
 import Controller from './Controller.js';
 import bcrypt from 'bcryptjs';
-import db from '../../database/config.js';
+import dbPromise from '../../database/config.js';
 
 class AuthController extends Controller {
   /**
@@ -16,6 +16,9 @@ class AuthController extends Controller {
           data: { success: false, message: 'Username and password are required' }
         };
       }
+
+      // Wait for database to be ready
+      const db = await dbPromise;
 
       // Find user by username
       const stmt = db.prepare('SELECT * FROM users WHERE username = ?');
@@ -74,6 +77,7 @@ class AuthController extends Controller {
       }
 
       // Find user by ID
+      const db = await dbPromise;
       const stmt = db.prepare('SELECT id, username, role FROM users WHERE id = ?');
       const user = stmt.get(userId);
 

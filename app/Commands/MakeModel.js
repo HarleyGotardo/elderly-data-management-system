@@ -23,8 +23,8 @@ class MakeModel {
       fs.mkdirSync(this.modelsPath, { recursive: true });
     }
 
-    const template = `const Model = require('./Model');
-const db = require('../../database/config');
+    const template = `import Model from './Model.js';
+import dbPromise from '../../database/config.js';
 
 class ${className} extends Model {
   static get tableName() {
@@ -34,7 +34,8 @@ class ${className} extends Model {
   /**
    * Find record by custom field
    */
-  static findBy${this.toPascalCase(options.field || 'name')}(value) {
+  static async findBy${this.toPascalCase(options.field || 'name')}(value) {
+    const db = await dbPromise;
     const stmt = db.prepare(\`SELECT * FROM \${this.tableName} WHERE ${options.field || 'name'} = ?\`);
     const row = stmt.get(value);
     
@@ -108,7 +109,7 @@ class ${className} extends Model {
   }
 }
 
-module.exports = ${className};
+export default ${className};
 `;
 
     fs.writeFileSync(filePath, template);

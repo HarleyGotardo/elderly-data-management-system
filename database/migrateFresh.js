@@ -1,4 +1,4 @@
-const db = require('./config.js');
+const dbPromise = require('./config.js');
 const bcrypt = require('bcryptjs');
 
 /**
@@ -8,6 +8,7 @@ async function migrateFresh() {
   console.log('Running fresh migration...');
   
   try {
+    const db = await dbPromise;
     // Drop all tables
     console.log('Dropping existing tables...');
     db.exec(`

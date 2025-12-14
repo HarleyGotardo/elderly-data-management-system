@@ -1,4 +1,4 @@
-const db = require('../config.js');
+const dbPromise = require('../config.js');
 
 class SeniorCitizenSeeder {
   /**
@@ -8,6 +8,7 @@ class SeniorCitizenSeeder {
     console.log('Seeding Senior Citizens...');
     
     try {
+      const db = await dbPromise;
       // Seed sample senior citizens
       const seniorCitizens = [
         {
@@ -260,6 +261,7 @@ class SeniorCitizenSeeder {
    */
   async clear() {
     console.log('Clearing senior citizens...');
+    const db = await dbPromise;
     db.exec('DELETE FROM senior_citizens');
     console.log('  ✓ All senior citizens cleared');
   }
