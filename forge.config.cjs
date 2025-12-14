@@ -4,10 +4,11 @@ const { FuseV1Options, FuseVersion } = require('@electron/fuses');
 module.exports = {
   packagerConfig: {
     asar: true,
+    icon: './resources/icon',
   },
   rebuildConfig: {
-    onlyModules: ['better-sqlite3'],
-    force: true
+    onlyModules: [],
+    force: false
   },
   makers: [
     {
@@ -50,6 +51,15 @@ module.exports = {
           {
             name: 'main_window',
             config: 'vite.renderer.config.mjs',
+            entryPoints: [
+              {
+                html: 'index.html',
+                js: 'src/renderer.jsx',
+                preload: {
+                  js: 'src/preload.js',
+                },
+              },
+            ],
           },
         ],
       },
