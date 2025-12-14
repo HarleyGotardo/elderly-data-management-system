@@ -1,5 +1,12 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
+
+// Import autoMigrate using app path
+const { runMigrations } = require(path.join(app.getAppPath(), 'database', 'autoMigrate.js'));
+
+// Run regular migrations before creating windows
+runMigrations().catch(console.error);
+
 import router from '../app/Routes/web.js';
 
 const createWindow = () => {

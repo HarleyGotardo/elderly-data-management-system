@@ -26,18 +26,27 @@ npm install
 npm run rebuild:electron
 ```
 
-4. **Set up the database:**
+4. **Start the application:**
+```bash
+npm start
+```
+
+> **Note**: On first run, the application will automatically:
+> - Create the database if it doesn't exist
+> - Run all migrations
+> - Seed with initial data (3 users and 5 sample senior citizens)
+> 
+> This ensures a consistent development environment out of the box!
+
+### Manual Database Setup (Optional)
+
+If you need to reset the database completely:
 ```bash
 # Fresh migration (drops all tables and recreates them)
 npm run migrate:fresh
 
 # Seed the database with test data (users and sample senior citizens)
 npm run db:seed
-```
-
-5. **Start the application:**
-```bash
-npm start
 ```
 
 ## 📋 Default Login Credentials
