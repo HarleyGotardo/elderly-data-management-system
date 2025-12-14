@@ -1,9 +1,9 @@
-const dbPromise = require('../config.js');
-const bcrypt = require('bcryptjs');
-const UserSeeder = require('./UserSeeder.js');
-const SeniorCitizenSeeder = require('./SeniorCitizenSeeder.js');
+import dbPromise from '../config.js';
+import bcrypt from 'bcryptjs';
+import UserSeeder from './UserSeeder.js';
+import SeniorCitizenSeeder from './SeniorCitizenSeeder.js';
 
-class DatabaseSeeder {
+export default class DatabaseSeeder {
   constructor() {
     this.seeders = [
       new UserSeeder(),
@@ -54,5 +54,3 @@ class DatabaseSeeder {
     }
   }
 }
-
-module.exports = DatabaseSeeder;

@@ -1,4 +1,4 @@
-const dbPromise = require('../config.js');
+import dbPromise from '../config.js';
 
 /**
  * Migration: Add sync fields and sync_queue table

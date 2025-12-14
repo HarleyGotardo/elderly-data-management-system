@@ -1,6 +1,6 @@
-const dbPromise = require('../config.js');
+import dbPromise from '../config.js';
 
-class SeniorCitizenSeeder {
+export default class SeniorCitizenSeeder {
   /**
    * Run the database seeder
    */
@@ -266,5 +266,3 @@ class SeniorCitizenSeeder {
     console.log('  ✓ All senior citizens cleared');
   }
 }
-
-module.exports = SeniorCitizenSeeder;

@@ -55,7 +55,7 @@ class Migration {
         const migration = require(path.join(this.migrationsPath, file));
         
         console.log('Running migration: ' + file);
-        await migration.up();
+        await migration.default.up();
 
         const stmt = db.prepare('INSERT INTO migrations (migration, batch) VALUES (?, ?)');
         stmt.run(file, batch);
@@ -137,7 +137,7 @@ class Migration {
           const migration = require(migrationFile);
           
           console.log('Rolling back migration: ' + migrationName);
-          await migration.down();
+          await migration.default.down();
         }
       } catch (error) {
         console.error('Error rolling back migration ' + migrationName + ':', error);

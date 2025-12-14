@@ -6,7 +6,7 @@ const DatabaseSeeder = require('./seeders/DatabaseSeeder');
 class Seeder {
   constructor() {
     this.seedersPath = path.join(__dirname, 'seeders');
-    this.databaseSeeder = new DatabaseSeeder();
+    this.databaseSeeder = new DatabaseSeeder.default();
   }
 
   async ensureSeedersTable() {

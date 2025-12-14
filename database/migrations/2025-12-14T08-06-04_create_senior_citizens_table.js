@@ -1,4 +1,4 @@
-const dbPromise = require('../config');
+import dbPromise from '../config.js';
 
 export default {
   async up() {

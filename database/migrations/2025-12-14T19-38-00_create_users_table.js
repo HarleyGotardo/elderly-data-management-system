@@ -1,5 +1,5 @@
-const dbPromise = require('../config');
-const bcrypt = require('bcryptjs');
+import dbPromise from '../config.js';
+import bcrypt from 'bcryptjs';
 
 /**
  * Migration: Create users table with authentication fields

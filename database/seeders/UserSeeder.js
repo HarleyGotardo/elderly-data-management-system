@@ -1,7 +1,7 @@
-const dbPromise = require('../config.js');
-const bcrypt = require('bcryptjs');
+import dbPromise from '../config.js';
+import bcrypt from 'bcryptjs';
 
-class UserSeeder {
+export default class UserSeeder {
   /**
    * Run the database seeder
    */
@@ -66,19 +66,3 @@ class UserSeeder {
     console.log('✓ All users cleared');
   }
 }
-
-// Run if called directly
-if (require.main === module) {
-  const seeder = new UserSeeder();
-  seeder.run()
-    .then(() => {
-      console.log('\n✨ Users seeded successfully!');
-      process.exit(0);
-    })
-    .catch(error => {
-      console.error('\n💥 Seeding failed:', error);
-      process.exit(1);
-    });
-}
-
-module.exports = UserSeeder;
