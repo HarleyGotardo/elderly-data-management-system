@@ -2,8 +2,230 @@ import React, { useState, useEffect } from 'react';
 import SeniorCitizenList from './components/SeniorCitizenList';
 import SeniorCitizenForm from './components/SeniorCitizenForm';
 
+const Dashboard = () => {
+  return (
+    <div className="dashboard">
+      <div className="dashboard-header">
+        <h1>ELDERLY DATA MANAGEMENT SYSTEM</h1>
+        <p>Electronic Data Management System for Senior Citizens</p>
+      </div>
+      
+      <div className="dashboard-grid">
+        <div className="dashboard-section">
+          <h3>Senior Citizen Management</h3>
+          <div className="button-grid">
+            <button 
+              className="dashboard-button primary"
+              onClick={() => window.location.hash = '#/senior-citizens'}
+            >
+              <div className="button-icon">👥</div>
+              <div className="button-text">Senior Citizens Registry</div>
+              <div className="button-subtext">View & manage senior citizens</div>
+            </button>
+            
+            <button 
+              className="dashboard-button primary"
+              onClick={() => window.location.hash = '#/senior-citizens/create'}
+            >
+              <div className="button-icon">➕</div>
+              <div className="button-text">Add New Senior Citizen</div>
+              <div className="button-subtext">Register new senior citizen</div>
+            </button>
+          </div>
+        </div>
+        
+        <div className="dashboard-section">
+          <h3>Reports & Analytics</h3>
+          <div className="button-grid">
+            <button className="dashboard-button secondary" disabled>
+              <div className="button-icon">📊</div>
+              <div className="button-text">Statistical Reports</div>
+              <div className="button-subtext">Generate reports</div>
+            </button>
+            
+            <button className="dashboard-button secondary" disabled>
+              <div className="button-icon">📈</div>
+              <div className="button-text">Analytics Dashboard</div>
+              <div className="button-subtext">View analytics</div>
+            </button>
+          </div>
+        </div>
+        
+        <div className="dashboard-section">
+          <h3>System Administration</h3>
+          <div className="button-grid">
+            <button className="dashboard-button secondary" disabled>
+              <div className="button-icon">⚙️</div>
+              <div className="button-text">System Settings</div>
+              <div className="button-subtext">Configure system</div>
+            </button>
+            
+            <button className="dashboard-button secondary" disabled>
+              <div className="button-icon">👤</div>
+              <div className="button-text">User Management</div>
+              <div className="button-subtext">Manage users</div>
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <div className="dashboard-footer">
+        <p>GOVERNMENT PROPERTY - NOT FOR SALE</p>
+      </div>
+      
+      <style>{`
+        .dashboard {
+          min-height: 100vh;
+          background: linear-gradient(135deg, #e8f4fc 0%, #cce5ff 50%, #b3d9ff 100%);
+          padding: 20px;
+          font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+        }
+        
+        .dashboard-header {
+          text-align: center;
+          margin-bottom: 30px;
+          padding: 20px;
+          background: white;
+          border-radius: 8px;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .dashboard-header h1 {
+          color: #1e3a8a;
+          font-size: 28px;
+          margin-bottom: 8px;
+          font-weight: 700;
+        }
+        
+        .dashboard-header p {
+          color: #6c757d;
+          font-size: 16px;
+          margin: 0;
+        }
+        
+        .dashboard-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+          gap: 20px;
+          margin-bottom: 20px;
+        }
+        
+        .dashboard-section {
+          background: white;
+          border-radius: 0;
+          padding: 20px;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .dashboard-section h3 {
+          color: #1e3a8a;
+          font-size: 18px;
+          margin-bottom: 15px;
+          padding-bottom: 10px;
+          border-bottom: 2px solid #e9ecef;
+        }
+        
+        .button-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+          gap: 15px;
+        }
+        
+        .dashboard-button {
+          background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+          border: 1px solid #2c5aa0;
+          border-radius: 0;
+          padding: 20px 15px;
+          color: white;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          text-align: center;
+          min-height: 120px;
+        }
+        
+        .dashboard-button:hover:not(:disabled) {
+          background: linear-gradient(135deg, #357abd 0%, #2968a3 100%);
+          transform: translateY(-2px);
+          box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        }
+        
+        .dashboard-button:active:not(:disabled) {
+          transform: translateY(0);
+          box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .dashboard-button.secondary {
+          background: #f8f9fa;
+          color: #212529;
+          border: 1px solid #dee2e6;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .dashboard-button.secondary:hover:not(:disabled) {
+          background: #e9ecef;
+          border-color: #adb5bd;
+        }
+        
+        .dashboard-button:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+        
+        .button-icon {
+          font-size: 32px;
+          margin-bottom: 8px;
+        }
+        
+        .button-text {
+          font-weight: 600;
+          font-size: 14px;
+          margin-bottom: 4px;
+        }
+        
+        .button-subtext {
+          font-size: 11px;
+          opacity: 0.9;
+        }
+        
+        .dashboard-footer {
+          text-align: center;
+          padding: 15px;
+          background: white;
+          border-radius: 0;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .dashboard-footer p {
+          color: #dc3545;
+          font-weight: 600;
+          margin: 0;
+          font-size: 14px;
+        }
+        
+        @media (max-width: 768px) {
+          .dashboard {
+            padding: 10px;
+          }
+          
+          .dashboard-grid {
+            grid-template-columns: 1fr;
+          }
+          
+          .button-grid {
+            grid-template-columns: 1fr;
+          }
+        }
+      `}</style>
+    </div>
+  );
+};
+
 const App = () => {
-  const [currentView, setCurrentView] = useState('list');
+  const [currentView, setCurrentView] = useState('dashboard');
   const [editingSeniorId, setEditingSeniorId] = useState(null);
 
   // Handle routing based on hash
@@ -11,7 +233,10 @@ const App = () => {
     const handleHashChange = () => {
       const hash = window.location.hash.slice(1); // Remove #
       
-      if (hash === '/senior-citizens' || hash === '') {
+      if (hash === '' || hash === '/dashboard') {
+        setCurrentView('dashboard');
+        setEditingSeniorId(null);
+      } else if (hash === '/senior-citizens') {
         setCurrentView('list');
         setEditingSeniorId(null);
       } else if (hash.startsWith('/senior-citizens/create')) {
@@ -47,6 +272,8 @@ const App = () => {
 
   const renderView = () => {
     switch (currentView) {
+      case 'dashboard':
+        return <Dashboard />;
       case 'list':
         return <SeniorCitizenList />;
       case 'create':
@@ -71,23 +298,6 @@ const App = () => {
 
   return (
     <div className="app">
-      <header className="app-header">
-        <h1>Senior Citizen Benefit EDMS</h1>
-        <p>Electronic Data Management System for R.A. 11982</p>
-        <nav className="app-nav">
-          <a href="#/senior-citizens" className={currentView === 'list' ? 'active' : ''}>
-            Senior Citizens Registry
-          </a>
-          <a href="#/senior-citizens/create" className={currentView === 'create' ? 'active' : ''}>
-            Add New Senior Citizen
-          </a>
-        </nav>
-      </header>
-      
-      <main className="app-main">
-        {renderView()}
-      </main>
-
       <style>{`
         * {
           margin: 0;
@@ -96,103 +306,19 @@ const App = () => {
         }
 
         body {
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-            'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-            sans-serif;
+          font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
-          background: #f5f5f5;
-          color: #333;
+          background: linear-gradient(135deg, #e8f4fc 0%, #cce5ff 50%, #b3d9ff 100%);
+          color: #212529;
         }
 
         .app {
           min-height: 100vh;
-          display: flex;
-          flex-direction: column;
-        }
-
-        .app-header {
-          background: #fff;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-          padding: 20px;
-          position: sticky;
-          top: 0;
-          z-index: 100;
-        }
-
-        .app-header h1 {
-          margin-bottom: 5px;
-          color: #2c3e50;
-          font-size: 28px;
-        }
-
-        .app-header p {
-          margin-bottom: 15px;
-          color: #7f8c8d;
-          font-size: 14px;
-        }
-
-        .app-nav {
-          display: flex;
-          gap: 20px;
-        }
-
-        .app-nav a {
-          text-decoration: none;
-          color: #6c757d;
-          padding: 8px 16px;
-          border-radius: 4px;
-          transition: all 0.2s;
-        }
-
-        .app-nav a:hover {
-          background: #f8f9fa;
-          color: #495057;
-        }
-
-        .app-nav a.active {
-          background: #3498db;
-          color: white;
-        }
-
-        .app-main {
-          flex: 1;
-          padding: 20px;
-        }
-
-        /* Utility classes */
-        .text-center {
-          text-align: center;
-        }
-
-        .mb-20 {
-          margin-bottom: 20px;
-        }
-
-        .mt-20 {
-          margin-top: 20px;
-        }
-
-        /* Responsive design */
-        @media (max-width: 768px) {
-          .app-header {
-            padding: 15px;
-          }
-
-          .app-header h1 {
-            font-size: 20px;
-          }
-
-          .app-nav {
-            flex-direction: column;
-            gap: 10px;
-          }
-
-          .app-main {
-            padding: 15px;
-          }
         }
       `}</style>
+      
+      {renderView()}
     </div>
   );
 };

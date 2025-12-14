@@ -350,7 +350,13 @@ const SeniorCitizenForm = ({ seniorId, onSave, onCancel }) => {
 
   return (
     <div className="senior-citizen-form">
-      <h2>{isEditing ? 'Edit Senior Citizen' : 'Add New Senior Citizen'}</h2>
+      <div className="form-header">
+        <div className="breadcrumb">
+          <a href="#/dashboard">Dashboard</a> / <a href="#/senior-citizens">Senior Citizens Registry</a> / {isEditing ? 'Edit Senior Citizen' : 'Add New Senior Citizen'}
+        </div>
+        <h2>{isEditing ? 'Edit Senior Citizen' : 'Add New Senior Citizen'}</h2>
+        <p>{isEditing ? 'Update the information below to modify the senior citizen record.' : 'Fill out the form below to register a new senior citizen.'}</p>
+      </div>
       
       {/* General Error */}
       {errors.general && (
@@ -829,29 +835,66 @@ const SeniorCitizenForm = ({ seniorId, onSave, onCancel }) => {
 
       <style>{`
         .senior-citizen-form {
+          padding: 20px;
           max-width: 1200px;
           margin: 0 auto;
+          background: linear-gradient(135deg, #e8f4fc 0%, #cce5ff 50%, #b3d9ff 100%);
+          min-height: 100vh;
+        }
+        
+        .form-header {
+          background: white;
           padding: 20px;
+          border-radius: 0;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+          margin-bottom: 30px;
+          border: 1px solid #dee2e6;
+        }
+        
+        .form-header h2 {
+          margin: 0 0 10px 0;
+          color: #1e3a8a;
+          font-size: 24px;
+          font-weight: 700;
+        }
+        
+        .form-header .breadcrumb {
+          color: #6c757d;
+          font-size: 14px;
+          margin-bottom: 15px;
+        }
+        
+        .form-header .breadcrumb a {
+          color: #3b82f6;
+          text-decoration: none;
+        }
+        
+        .form-header .breadcrumb a:hover {
+          text-decoration: underline;
+        }
+        
+        .form-header p {
+          margin: 0;
+          color: #6c757d;
+          font-size: 14px;
         }
 
         .form-section {
-          background: #fff;
-          padding: 20px;
-          border-radius: 8px;
-          margin-bottom: 20px;
+          background: white;
+          padding: 25px;
+          border-radius: 0;
           box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+          margin-bottom: 20px;
+          border: 1px solid #dee2e6;
         }
 
         .form-section h3 {
-          margin-bottom: 20px;
-          color: #2c3e50;
-          border-bottom: 2px solid #3498db;
+          margin: 0 0 20px 0;
+          color: #1e3a8a;
+          font-size: 18px;
+          font-weight: 600;
+          border-bottom: 2px solid #e9ecef;
           padding-bottom: 10px;
-        }
-
-        .form-section h4 {
-          margin: 20px 0 10px;
-          color: #555;
         }
 
         .form-row {
@@ -866,51 +909,70 @@ const SeniorCitizenForm = ({ seniorId, onSave, onCancel }) => {
 
         .form-group label {
           display: block;
-          margin-bottom: 5px;
-          font-weight: bold;
-          color: #333;
+          margin-bottom: 8px;
+          font-weight: 600;
+          color: #495057;
+          font-size: 14px;
         }
 
         .form-group input,
-        .form-group select {
+        .form-group select,
+        .form-group textarea {
           width: 100%;
-          padding: 10px;
-          border: 1px solid #ddd;
-          border-radius: 4px;
-          font-size: 16px;
+          padding: 10px 15px;
+          border: 1px solid #dee2e6;
+          border-radius: 0;
+          font-size: 14px;
+          font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+          transition: all 0.2s ease;
+          background: white;
+          box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15), inset 0 1px 2px rgba(0, 0, 0, 0.1);
+          color: #495057;
         }
-
+        
         .form-group input:focus,
-        .form-group select:focus {
+        .form-group select:focus,
+        .form-group textarea:focus {
           outline: none;
-          border-color: #3498db;
-          box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.25);
+          border-color: #3b82f6;
+          box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15), inset 0 1px 2px rgba(0, 0, 0, 0.1), 0 0 0 2px rgba(59, 130, 246, 0.2);
         }
-
-        .form-group input.error,
-        .form-group select.error {
-          border-color: #e74c3c;
-        }
-
+        
         .form-group input:disabled,
         .form-group select:disabled {
           background: #f8f9fa;
+          color: #6c757d;
           cursor: not-allowed;
+        }
+
+        .form-group .required {
+          color: #dc3545;
+          margin-left: 4px;
+        }
+
+        .form-group .error {
+          border-color: #dc3545;
+          background: #fff5f5;
         }
 
         .error-message {
           display: block;
-          color: #e74c3c;
-          font-size: 14px;
+          color: #721c24;
+          font-size: 13px;
           margin-top: 5px;
+          font-weight: 500;
         }
 
         .age-display {
           display: block;
-          color: #27ae60;
-          font-size: 14px;
+          color: #155724;
+          font-size: 13px;
           margin-top: 5px;
-          font-weight: bold;
+          font-weight: 600;
+          background: #d4edda;
+          padding: 4px 8px;
+          border-radius: 4px;
+          border: 1px solid #c3e6cb;
         }
 
         .checkbox-group {
@@ -920,73 +982,114 @@ const SeniorCitizenForm = ({ seniorId, onSave, onCancel }) => {
         .checkbox-label {
           display: flex;
           align-items: center;
-          font-weight: normal;
+          font-weight: 500;
           margin-bottom: 10px;
+          color: #495057;
         }
 
         .checkbox-label input[type="checkbox"] {
           width: auto;
           margin-right: 10px;
+          transform: scale(1.2);
         }
 
         .error {
-          color: #e74c3c;
-          background: #fdf2f2;
+          color: #721c24;
+          background: #f8d7da;
           border: 1px solid #f5c6cb;
           padding: 15px;
-          border-radius: 4px;
+          border-radius: 0;
           margin-bottom: 20px;
+          font-weight: 500;
         }
 
         .form-actions {
           display: flex;
-          gap: 10px;
+          gap: 15px;
           justify-content: flex-end;
           margin-top: 30px;
+          padding: 20px;
+          background: white;
+          border-radius: 0;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+          border: 1px solid #dee2e6;
         }
 
         .form-actions button {
-          padding: 12px 24px;
+          padding: 12px 30px;
           border: none;
-          border-radius: 4px;
+          border-radius: 0;
           cursor: pointer;
-          font-size: 16px;
+          font-size: 15px;
+          font-weight: 600;
+          transition: all 0.2s ease;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+          min-width: 120px;
+        }
+        
+        .form-actions button:hover:not(:disabled) {
+          transform: translateY(-1px);
+          box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        }
+        
+        .form-actions button:active:not(:disabled) {
+          transform: translateY(0);
+          box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
         }
 
         .form-actions button:disabled {
           cursor: not-allowed;
           opacity: 0.6;
+          transform: none;
         }
 
         .form-actions button[type="button"] {
-          background: #95a5a6;
+          background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
           color: white;
+          border: 1px solid #545b62;
         }
 
         .form-actions button[type="button"]:hover:not(:disabled) {
-          background: #7f8c8d;
+          background: linear-gradient(135deg, #5a6268 0%, #495057 100%);
         }
 
         .form-actions button.primary {
-          background: #3498db;
+          background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
           color: white;
+          border: 1px solid #2c5aa0;
         }
 
         .form-actions button.primary:hover:not(:disabled) {
-          background: #2980b9;
+          background: linear-gradient(135deg, #357abd 0%, #2968a3 100%);
         }
 
         .loading {
           text-align: center;
           padding: 40px;
           font-size: 18px;
-          color: #7f8c8d;
+          color: #1e3a8a;
+          background: white;
+          border-radius: 0;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+          border: 1px solid #dee2e6;
         }
 
         @media (max-width: 768px) {
+          .senior-citizen-form {
+            padding: 10px;
+          }
+          
           .form-row {
             flex-direction: column;
             gap: 0;
+          }
+          
+          .form-actions {
+            flex-direction: column;
+          }
+          
+          .form-actions button {
+            width: 100%;
           }
         }
       `}</style>
