@@ -454,10 +454,8 @@ const SeniorCitizenList = () => {
         .list-header {
           background: white;
           padding: 20px;
-          border-radius: 0;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-          margin-bottom: 30px;
           border: 1px solid #dee2e6;
+          margin-bottom: 30px;
         }
 
         .list-header h2 {
@@ -492,10 +490,8 @@ const SeniorCitizenList = () => {
         .stat-card {
           background: white;
           padding: 20px;
-          border-radius: 0;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-          text-align: center;
           border: 1px solid #dee2e6;
+          text-align: center;
           transition: transform 0.2s ease;
         }
         
@@ -521,10 +517,8 @@ const SeniorCitizenList = () => {
         .search-filters {
           background: white;
           padding: 20px;
-          border-radius: 0;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-          margin-bottom: 20px;
           border: 1px solid #dee2e6;
+          margin-bottom: 20px;
         }
         
         .search-filters h3 {
@@ -546,18 +540,17 @@ const SeniorCitizenList = () => {
           flex: 1;
           padding: 10px 15px;
           border: 1px solid #dee2e6;
-          border-radius: 0;
           font-size: 14px;
           font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
           transition: all 0.2s ease;
           background: white;
-          box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15), inset 0 1px 2px rgba(0, 0, 0, 0.1);
+          box-shadow: inset 0 2px 4px rgba(0,0,0,0.15), inset 0 1px 2px rgba(0,0,0,0.1);
         }
         
         .search-bar input:focus {
           outline: none;
           border-color: #3b82f6;
-          box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15), inset 0 1px 2px rgba(0, 0, 0, 0.1), 0 0 0 2px rgba(59, 130, 246, 0.2);
+          box-shadow: inset 0 2px 4px rgba(0,0,0,0.15), inset 0 1px 2px rgba(0,0,0,0.1), 0 0 0 2px rgba(59, 130, 246, 0.2);
         }
 
         .search-bar button {
@@ -565,22 +558,10 @@ const SeniorCitizenList = () => {
           background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
           color: white;
           border: 1px solid #2c5aa0;
-          border-radius: 6px;
           cursor: pointer;
           font-weight: 600;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.2);
           transition: all 0.2s ease;
-        }
-
-        .search-bar button:hover {
-          background: linear-gradient(135deg, #357abd 0%, #2968a3 100%);
-          transform: translateY(-1px);
-          box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-        }
-        
-        .search-bar button:active {
-          transform: translateY(0);
-          box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+          box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
         .filter-bar {
@@ -601,7 +582,6 @@ const SeniorCitizenList = () => {
           background: #f8f9fa;
           color: #212529;
           border: 1px solid #dee2e6;
-          border-radius: 0;
           cursor: pointer;
           font-weight: 500;
           transition: all 0.2s ease;
@@ -631,21 +611,26 @@ const SeniorCitizenList = () => {
         .actions-bar button {
           padding: 10px 20px;
           border: none;
-          border-radius: 0;
           cursor: pointer;
           font-weight: 600;
           transition: all 0.2s ease;
           box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
-        
-        .actions-bar button:hover {
+
+        .actions-bar button:hover:not(:disabled) {
           transform: translateY(-1px);
           box-shadow: 0 4px 6px rgba(0,0,0,0.2);
         }
-        
-        .actions-bar button:active {
+
+        .actions-bar button:active:not(:disabled) {
           transform: translateY(0);
           box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .actions-bar button:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+          transform: none;
         }
 
         .actions-bar button:first-child {
@@ -666,17 +651,14 @@ const SeniorCitizenList = () => {
           background: #f8d7da;
           border: 1px solid #f5c6cb;
           padding: 15px;
-          border-radius: 0;
           margin-bottom: 20px;
           font-weight: 500;
         }
 
         .table-container {
           background: white;
-          border-radius: 0;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-          overflow: hidden;
           border: 1px solid #dee2e6;
+          overflow: hidden;
         }
 
         table {
@@ -692,7 +674,7 @@ const SeniorCitizenList = () => {
         }
 
         th {
-          background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+          background: #f8f9fa;
           font-weight: 700;
           color: #1e3a8a;
           font-size: 13px;
@@ -700,22 +682,19 @@ const SeniorCitizenList = () => {
           letter-spacing: 0.5px;
           border-bottom: 2px solid #dee2e6;
         }
-        
+
         td {
           color: #495057;
           font-size: 14px;
+          background: white !important;
         }
 
-        tr:hover {
-          background: #f8f9fa;
+        tr {
+          background: white !important;
         }
-        
-        tr:nth-child(even) {
-          background: #fafbfc;
-        }
-        
-        tr:nth-child(even):hover {
-          background: #f1f3f4;
+
+        tr:hover td {
+          background: #f8f9fa !important;
         }
 
         .address-cell {
@@ -730,7 +709,6 @@ const SeniorCitizenList = () => {
 
         .status-badge {
           padding: 6px 12px;
-          border-radius: 20px;
           font-size: 11px;
           font-weight: 700;
           text-transform: uppercase;
@@ -785,19 +763,18 @@ const SeniorCitizenList = () => {
         .action-buttons button {
           padding: 8px 16px;
           border: none;
-          border-radius: 0;
           cursor: pointer;
           font-size: 12px;
           font-weight: 600;
           transition: all 0.2s ease;
           box-shadow: 0 1px 3px rgba(0,0,0,0.2);
         }
-        
+
         .action-buttons button:hover:not(:disabled) {
           transform: translateY(-1px);
           box-shadow: 0 2px 4px rgba(0,0,0,0.3);
         }
-        
+
         .action-buttons button:active:not(:disabled) {
           transform: translateY(0);
           box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
@@ -835,11 +812,9 @@ const SeniorCitizenList = () => {
           margin-top: 30px;
           padding: 20px;
           background: white;
-          border-radius: 0;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
           border: 1px solid #dee2e6;
         }
-        
+
         .pagination span {
           color: #1e3a8a;
           font-weight: 600;
@@ -851,13 +826,12 @@ const SeniorCitizenList = () => {
           background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
           color: white;
           border: 1px solid #2c5aa0;
-          border-radius: 0;
           cursor: pointer;
           font-weight: 600;
           transition: all 0.2s ease;
           box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
-        
+
         .pagination button:hover:not(:disabled) {
           background: linear-gradient(135deg, #357abd 0%, #2968a3 100%);
           transform: translateY(-1px);

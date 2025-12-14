@@ -26,27 +26,36 @@ npm install
 npm run rebuild:electron
 ```
 
-4. **Start the application:**
-```bash
-npm start
-```
-
-> **Note**: On first run, the application will automatically:
-> - Create the database if it doesn't exist
-> - Run all migrations
-> - Seed with initial data (3 users and 5 sample senior citizens)
-> 
-> This ensures a consistent development environment out of the box!
-
-### Manual Database Setup (Optional)
-
-If you need to reset the database completely:
+4. **Set up the database:**
 ```bash
 # Fresh migration (drops all tables and recreates them)
 npm run migrate:fresh
 
 # Seed the database with test data (users and sample senior citizens)
 npm run db:seed
+```
+
+5. **Start the application:**
+```bash
+npm start
+```
+
+### Quick Setup Script
+
+For a complete setup in one command:
+```bash
+npm run setup
+```
+
+This will:
+- Install all dependencies
+- Rebuild native modules for Electron
+- Create and migrate the database
+- Seed with test data (users and sample senior citizens)
+
+After setup completes, simply run:
+```bash
+npm start
 ```
 
 ## 📋 Default Login Credentials
@@ -174,19 +183,60 @@ npm run seeder:run
 
 ## 🔧 Troubleshooting
 
-### Common Issues
+### Common Issues and Solutions
 
-1. **"Cannot find module" or "NODE_MODULE_VERSION mismatch" error**
-   - Run: `npm run rebuild:electron`
-   - This rebuilds native modules for Electron's Node version
+1. **NODE_MODULE_VERSION mismatch error**
+   ```
+   Error: The module was compiled against a different Node.js version using
+   NODE_MODULE_VERSION 137. This version of Node.js requires NODE_MODULE_VERSION 140.
+   ```
+   **Solution**: Run `npm run rebuild:electron`
+   - This rebuilds native modules (better-sqlite3) for Electron's Node version
+   - Required after: npm install, Node.js updates, or when switching branches
 
-2. **Database not found or empty**
-   - Run: `npm run migrate:fresh`
+2. **"Cannot find module" errors**
+   ```
+   Error: Cannot find module 'better-sqlite3'
+   ```
+   **Solution**: Run `npm run rebuild:electron`
+   - This indicates native modules need to be rebuilt for Electron
+
+3. **Database not found or empty**
+   ```
+   Error: SQLITE_CANTOPEN: unable to open database file
+   ```
+   **Solution**: Run `npm run migrate:fresh`
    - This creates the database and runs all migrations
 
-3. **No test data or users**
-   - Run: `npm run db:seed`
-   - This populates the database with sample data
+4. **No test data or users in database**
+   **Solution**: Run `npm run db:seed`
+   - This populates the database with test users and sample senior citizens
+
+5. **App crashes on startup with white screen**
+   - Check the terminal for error messages
+   - Most likely a NODE_MODULE_VERSION issue (see #1)
+
+6. **HMR (Hot Module Reload) not working**
+   - Save the file again
+   - If still not working, restart with `rs` in terminal
+   - Last resort: `npm start` to restart completely
+
+### Quick Fix Commands
+
+```bash
+# Fix most native module issues
+npm run rebuild:electron
+
+# Reset database completely
+npm run migrate:fresh && npm run db:seed
+
+# Full reset (dependencies + database)
+rm -rf node_modules
+npm install
+npm run rebuild:electron
+npm run migrate:fresh
+npm run db:seed
+```
 
 ### Resetting the Database
 

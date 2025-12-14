@@ -239,48 +239,41 @@ const UserManagement = () => {
       <style>{`
         .user-management {
           padding: 20px;
-          max-width: 1200px;
-          margin: 0 auto;
           background: linear-gradient(135deg, #e8f4fc 0%, #cce5ff 50%, #b3d9ff 100%);
           min-height: 100vh;
         }
         
-        .user-header {
+        .user-management-header {
           background: white;
           padding: 20px;
           border-radius: 0;
           box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-          margin-bottom: 30px;
+          margin-bottom: 20px;
           border: 1px solid #dee2e6;
         }
-        
-        .breadcrumb {
-          font-size: 14px;
-          margin-bottom: 10px;
-        }
-        
-        .breadcrumb a {
-          color: #4a90e2;
-          text-decoration: none;
-        }
-        
-        .breadcrumb a:hover {
-          text-decoration: underline;
-        }
-        
-        .user-header h2 {
+
+        .user-management-header h2 {
           margin: 0 0 10px 0;
           color: #1e3a8a;
           font-size: 24px;
           font-weight: 700;
         }
         
-        .user-header p {
-          margin: 0;
+        .user-management-header .breadcrumb {
           color: #6c757d;
           font-size: 14px;
+          margin-bottom: 15px;
         }
         
+        .user-management-header .breadcrumb a {
+          color: #3b82f6;
+          text-decoration: none;
+        }
+        
+        .user-management-header .breadcrumb a:hover {
+          text-decoration: underline;
+        }
+
         .search-filters {
           background: white;
           padding: 20px;
@@ -295,14 +288,16 @@ const UserManagement = () => {
           color: #1e3a8a;
           font-size: 18px;
           font-weight: 600;
+          border-bottom: 2px solid #e9ecef;
+          padding-bottom: 8px;
         }
-        
+
         .search-bar {
           display: flex;
           gap: 10px;
           margin-bottom: 15px;
         }
-        
+
         .search-bar input {
           flex: 1;
           padding: 10px 15px;
@@ -312,16 +307,15 @@ const UserManagement = () => {
           font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
           transition: all 0.2s ease;
           background: white;
-          box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15), inset 0 1px 2px rgba(0, 0, 0, 0.1);
-          color: #495057;
+          box-shadow: inset 0 2px 4px rgba(0,0,0,0.15), inset 0 1px 2px rgba(0,0,0,0.1);
         }
         
         .search-bar input:focus {
           outline: none;
           border-color: #3b82f6;
-          box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15), inset 0 1px 2px rgba(0, 0, 0, 0.1), 0 0 0 2px rgba(59, 130, 246, 0.2);
+          box-shadow: inset 0 2px 4px rgba(0,0,0,0.15), inset 0 1px 2px rgba(0,0,0,0.1), 0 0 0 2px rgba(59, 130, 246, 0.2);
         }
-        
+
         .search-bar button {
           padding: 10px 20px;
           background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
@@ -329,24 +323,25 @@ const UserManagement = () => {
           border: 1px solid #2c5aa0;
           border-radius: 0;
           cursor: pointer;
+          font-size: 14px;
           font-weight: 600;
           transition: all 0.2s ease;
           box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
-        
+
         .filter-bar {
           display: flex;
           align-items: center;
           gap: 10px;
           flex-wrap: wrap;
         }
-        
+
         .filter-bar span {
           font-weight: 600;
           color: #495057;
           font-size: 14px;
         }
-        
+
         .filter-bar button {
           padding: 8px 16px;
           background: #f8f9fa;
@@ -358,125 +353,160 @@ const UserManagement = () => {
           transition: all 0.2s ease;
           box-shadow: 0 1px 2px rgba(0,0,0,0.05);
         }
-        
+
+        .filter-bar button:hover {
+          background: #e9ecef;
+          border-color: #adb5bd;
+          transform: translateY(-1px);
+        }
+
         .filter-bar button.active {
           background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
           color: white;
           border-color: #2c5aa0;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
-        
+
         .actions-bar {
           display: flex;
           gap: 10px;
           margin-bottom: 20px;
           flex-wrap: wrap;
         }
-        
-        .btn-primary {
+
+        .actions-bar button {
           padding: 10px 20px;
-          background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
-          color: white;
-          border: 1px solid #2c5aa0;
+          border: none;
           border-radius: 0;
           cursor: pointer;
           font-weight: 600;
           transition: all 0.2s ease;
           box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
-        
-        .table-container {
+
+        .btn-primary {
+          background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+          color: white;
+          border: 1px solid #1e8449;
+        }
+
+        .user-table {
           background: white;
           border-radius: 0;
           box-shadow: 0 2px 4px rgba(0,0,0,0.1);
           overflow: hidden;
           border: 1px solid #dee2e6;
         }
-        
+
         table {
           width: 100%;
           border-collapse: collapse;
           font-size: 14px;
         }
-        
+
+        th, td {
+          padding: 12px 15px;
+          text-align: left;
+          border-bottom: 1px solid #e9ecef;
+        }
+
         th {
-          background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+          background: #f8f9fa;
           font-weight: 700;
           color: #1e3a8a;
           font-size: 13px;
           text-transform: uppercase;
           letter-spacing: 0.5px;
           border-bottom: 2px solid #dee2e6;
-          padding: 15px;
-          text-align: left;
         }
-        
+
         td {
           color: #495057;
           font-size: 14px;
-          padding: 15px;
-          border-bottom: 1px solid #e9ecef;
+          background: white !important;
         }
-        
-        tr:hover {
-          background: #f8f9fa;
+
+        tr {
+          background: white !important;
         }
-        
+
+        tr:hover td {
+          background: #f8f9fa !important;
+        }
+
         .status-badge {
-          padding: 4px 12px;
-          border-radius: 0;
-          font-size: 12px;
-          font-weight: 600;
+          padding: 6px 12px;
+          font-size: 11px;
+          font-weight: 700;
           text-transform: uppercase;
           letter-spacing: 0.5px;
+          display: inline-block;
+          min-width: 80px;
+          text-align: center;
+          border-radius: 0;
         }
-        
-        .status-client {
-          background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
-          color: #1565c0;
+
+        .status-client { 
+          background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%); 
+          color: #495057; 
+          border: 1px solid #ced4da;
         }
-        
-        .status-admin {
-          background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
-          color: #e65100;
+        .status-admin { 
+          background: linear-gradient(135deg, #d4e6f1 0%, #aed6f1 100%); 
+          color: #1b4f72; 
+          border: 1px solid #85c1e9;
         }
-        
-        .status-super-admin {
-          background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%);
-          color: #c2185b;
+        .status-super-admin { 
+          background: linear-gradient(135deg, #d5f4e6 0%, #a9dfbf 100%); 
+          color: #196f3d; 
+          border: 1px solid #7dcea0;
         }
-        
+
         .action-buttons {
           display: flex;
           gap: 8px;
           flex-wrap: wrap;
         }
-        
+
+        .action-buttons button {
+          padding: 8px 16px;
+          border: none;
+          border-radius: 0;
+          cursor: pointer;
+          font-size: 12px;
+          font-weight: 600;
+          transition: all 0.2s ease;
+          box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+
+        .action-buttons button:hover:not(:disabled) {
+          transform: translateY(-1px);
+          box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .action-buttons button:active:not(:disabled) {
+          transform: translateY(0);
+          box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .action-buttons button:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+          transform: none;
+        }
+
         .btn-edit {
-          padding: 6px 12px;
-          background: linear-gradient(135deg, #28a745 0%, #218838 100%);
+          background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
           color: white;
-          border: 1px solid #1e7e34;
-          border-radius: 0;
-          cursor: pointer;
-          font-size: 12px;
-          font-weight: 600;
-          transition: all 0.2s ease;
-          box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+          border: 1px solid #2471a3;
         }
-        
+
         .btn-delete {
-          padding: 6px 12px;
-          background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+          background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
           color: white;
-          border: 1px solid #bd2130;
-          border-radius: 0;
-          cursor: pointer;
-          font-size: 12px;
-          font-weight: 600;
-          transition: all 0.2s ease;
-          box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+          border: 1px solid #a93226;
         }
-        
+
         .btn-delete:disabled {
           opacity: 0.5;
           cursor: not-allowed;

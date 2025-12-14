@@ -68,38 +68,43 @@ const LoginPage = () => {
         background: 'white',
         padding: '40px',
         width: '100%',
-        maxWidth: '400px',
+        maxWidth: '450px',
         border: '1px solid #dee2e6',
         boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
       }}>
         <h2 style={{
           textAlign: 'center',
           color: '#1e3a8a',
-          marginBottom: '30px',
-          fontSize: '24px',
-          fontWeight: '700'
+          marginBottom: '25px',
+          fontSize: '22px',
+          fontWeight: '700',
+          letterSpacing: '0.5px'
         }}>
-          Senior Citizen System
+          Elderly Data Management System
         </h2>
         
         <h3 style={{
           textAlign: 'center',
-          color: '#495057',
-          marginBottom: '30px',
-          fontSize: '18px',
-          fontWeight: '600'
+          color: '#333',
+          marginBottom: '35px',
+          fontSize: '16px',
+          fontWeight: '600',
+          textTransform: 'uppercase',
+          letterSpacing: '1px'
         }}>
           Login to Your Account
         </h3>
 
         <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: '20px' }}>
+          <div style={{ marginBottom: '25px' }}>
             <label style={{
               display: 'block',
               marginBottom: '8px',
-              fontWeight: '600',
-              color: '#495057',
-              fontSize: '14px'
+              fontWeight: '700',
+              color: '#333',
+              fontSize: '13px',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px'
             }}>
               Username
             </label>
@@ -114,12 +119,14 @@ const LoginPage = () => {
                 borderRadius: '0',
                 fontSize: '14px',
                 fontFamily: "'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif",
+                transition: 'all 0.2s ease',
                 background: 'white',
                 boxShadow: 'inset 0 2px 4px rgba(0, 0, 0, 0.15), inset 0 1px 2px rgba(0, 0, 0, 0.1)',
                 color: '#495057',
-                transition: 'all 0.2s ease'
+                boxSizing: 'border-box'
               }}
               onFocus={(e) => {
+                e.target.style.outline = 'none';
                 e.target.style.borderColor = '#3b82f6';
                 e.target.style.boxShadow = 'inset 0 2px 4px rgba(0, 0, 0, 0.15), inset 0 1px 2px rgba(0, 0, 0, 0.1), 0 0 0 2px rgba(59, 130, 246, 0.2)';
               }}
@@ -132,13 +139,15 @@ const LoginPage = () => {
             />
           </div>
 
-          <div style={{ marginBottom: '30px' }}>
+          <div style={{ marginBottom: '35px' }}>
             <label style={{
               display: 'block',
               marginBottom: '8px',
-              fontWeight: '600',
-              color: '#495057',
-              fontSize: '14px'
+              fontWeight: '700',
+              color: '#333',
+              fontSize: '13px',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px'
             }}>
               Password
             </label>
@@ -153,12 +162,14 @@ const LoginPage = () => {
                 borderRadius: '0',
                 fontSize: '14px',
                 fontFamily: "'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif",
+                transition: 'all 0.2s ease',
                 background: 'white',
                 boxShadow: 'inset 0 2px 4px rgba(0, 0, 0, 0.15), inset 0 1px 2px rgba(0, 0, 0, 0.1)',
                 color: '#495057',
-                transition: 'all 0.2s ease'
+                boxSizing: 'border-box'
               }}
               onFocus={(e) => {
+                e.target.style.outline = 'none';
                 e.target.style.borderColor = '#3b82f6';
                 e.target.style.boxShadow = 'inset 0 2px 4px rgba(0, 0, 0, 0.15), inset 0 1px 2px rgba(0, 0, 0, 0.1), 0 0 0 2px rgba(59, 130, 246, 0.2)';
               }}
@@ -176,42 +187,53 @@ const LoginPage = () => {
             disabled={loading}
             style={{
               width: '100%',
-              padding: '12px',
+              padding: '14px',
               background: loading 
-                ? '#6c757d' 
-                : 'linear-gradient(135deg, #4a90e2 0%, #357abd 100%)',
+                ? '#666' 
+                : '#1e3a8a',
               color: 'white',
-              border: '1px solid #2c5aa0',
+              border: '2px solid #1e3a8a',
               borderRadius: '0',
-              fontSize: '15px',
-              fontWeight: '600',
+              fontSize: '14px',
+              fontWeight: '700',
               cursor: loading ? 'not-allowed' : 'pointer',
               transition: 'all 0.2s ease',
-              boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
-              fontFamily: "'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif"
+              fontFamily: "'Courier New', monospace",
+              textTransform: 'uppercase',
+              letterSpacing: '1px',
+              boxSizing: 'border-box',
+              outline: 'none'
             }}
             onMouseOver={(e) => {
               if (!loading) {
-                e.target.style.background = 'linear-gradient(135deg, #357abd 0%, #2968a3 100%)';
-                e.target.style.transform = 'translateY(-1px)';
-                e.target.style.boxShadow = '0 4px 6px rgba(0,0,0,0.2)';
+                e.target.style.background = '#fff';
+                e.target.style.color = '#1e3a8a';
+                e.target.style.transform = 'translateY(-2px)';
+                e.target.style.boxShadow = '0 4px 0 #0f172a';
               }
             }}
             onMouseOut={(e) => {
               if (!loading) {
-                e.target.style.background = 'linear-gradient(135deg, #4a90e2 0%, #357abd 100%)';
+                e.target.style.background = '#1e3a8a';
+                e.target.style.color = 'white';
                 e.target.style.transform = 'translateY(0)';
-                e.target.style.boxShadow = '0 2px 4px rgba(0,0,0,0.2)';
+                e.target.style.boxShadow = 'none';
+              }
+            }}
+            onMouseDown={(e) => {
+              if (!loading) {
+                e.target.style.transform = 'translateY(0)';
+                e.target.style.boxShadow = 'none';
               }
             }}
           >
-            {loading ? 'Logging in...' : 'Login'}
+            {loading ? 'LOGGING IN...' : 'LOGIN'}
           </button>
         </form>
 
         <div style={{
-          marginTop: '30px',
-          padding: '15px',
+          marginTop: '35px',
+          padding: '20px',
           background: '#f8f9fa',
           border: '1px solid #dee2e6',
           borderRadius: '0'
@@ -219,12 +241,21 @@ const LoginPage = () => {
           <p style={{
             margin: '0',
             fontSize: '12px',
-            color: '#6c757d',
-            textAlign: 'center'
+            color: '#495057',
+            textAlign: 'center',
+            fontFamily: "'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif",
+            lineHeight: '1.6'
           }}>
-            Default Admin Account:<br />
+            <strong style={{ color: '#1e3a8a' }}>TEST USERS:</strong><br /><br />
+            <strong>SUPER ADMIN:</strong><br />
+            Username: <strong>superadmin</strong><br />
+            Password: <strong>password123</strong><br /><br />
+            <strong>ADMIN:</strong><br />
             Username: <strong>admin</strong><br />
-            Password: <strong>admin123</strong>
+            Password: <strong>password123</strong><br /><br />
+            <strong>CLIENT:</strong><br />
+            Username: <strong>client</strong><br />
+            Password: <strong>password123</strong>
           </p>
         </div>
       </div>

@@ -157,7 +157,7 @@ const Dashboard = () => {
           margin-bottom: 30px;
           padding: 20px;
           background: white;
-          border-radius: 8px;
+          border: 1px solid #dee2e6;
           box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         
@@ -183,9 +183,10 @@ const Dashboard = () => {
         
         .dashboard-section {
           background: white;
-          border-radius: 0;
-          padding: 20px;
+          padding: 25px;
+          border: 1px solid #dee2e6;
           box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+          margin-bottom: 25px;
         }
         
         .dashboard-section h3 {
@@ -205,7 +206,6 @@ const Dashboard = () => {
         .dashboard-button {
           background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
           border: 1px solid #2c5aa0;
-          border-radius: 0;
           padding: 20px 15px;
           color: white;
           cursor: pointer;

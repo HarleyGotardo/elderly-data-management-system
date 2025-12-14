@@ -26,7 +26,7 @@
     "db:migrate": "npm run rebuild:node && node database/cli.js migrate",
     "migrate:fresh": "npm run db:fresh",
     "migrate:seed": "npm run db:seed",
-    "setup": "npm install && npm run rebuild:electron && npm run migrate:fresh && npm run db:seed",
+    "setup": "npm install && npm run migrate:fresh && npm run seeder:reset && npm run db:seed && npm run rebuild:electron",
     "make": "node app/Commands/cli.js",
     "make:controller": "node app/Commands/cli.js controller",
     "make:model": "node app/Commands/cli.js model",

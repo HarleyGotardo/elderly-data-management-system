@@ -974,7 +974,7 @@ const SeniorCitizenForm = ({ seniorId, onSave, onCancel }) => {
           font-weight: 600;
           background: #d4edda;
           padding: 4px 8px;
-          border-radius: 4px;
+          border-radius: 0;
           border: 1px solid #c3e6cb;
         }
 
