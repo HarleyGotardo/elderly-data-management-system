@@ -1,12 +1,16 @@
 import { defineConfig } from 'vite';
+import commonjs from '@rollup/plugin-commonjs';
 
 // https://vitejs.dev/config
 export default defineConfig({
+  plugins: [
+    commonjs()
+  ],
   build: {
     rollupOptions: {
-      external: (id) => {
-        // Externalize all imports from app/ directory
-        return id.includes('../app/') || id.includes('app/');
+      external: ['better-sqlite3', 'electron-squirrel-startup'],
+      output: {
+        format: 'cjs'
       }
     }
   }

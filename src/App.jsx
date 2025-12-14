@@ -1,27 +1,94 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import SeniorCitizenList from './components/SeniorCitizenList';
+import SeniorCitizenForm from './components/SeniorCitizenForm';
 
 const App = () => {
+  const [currentView, setCurrentView] = useState('list');
+  const [editingSeniorId, setEditingSeniorId] = useState(null);
+
+  // Handle routing based on hash
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.slice(1); // Remove #
+      
+      if (hash === '/senior-citizens' || hash === '') {
+        setCurrentView('list');
+        setEditingSeniorId(null);
+      } else if (hash.startsWith('/senior-citizens/create')) {
+        setCurrentView('create');
+        setEditingSeniorId(null);
+      } else if (hash.startsWith('/senior-citizens/edit/')) {
+        const seniorId = hash.split('/senior-citizens/edit/')[1];
+        setCurrentView('edit');
+        setEditingSeniorId(seniorId);
+      }
+    };
+
+    // Initial check
+    handleHashChange();
+
+    // Listen for hash changes
+    window.addEventListener('hashchange', handleHashChange);
+
+    return () => {
+      window.removeEventListener('hashchange', handleHashChange);
+    };
+  }, []);
+
+  const handleSeniorSaved = (senior) => {
+    // Redirect to senior citizen list after successful save
+    window.location.hash = '#/senior-citizens';
+  };
+
+  const handleFormCancel = () => {
+    // Redirect to senior citizen list on cancel
+    window.location.hash = '#/senior-citizens';
+  };
+
+  const renderView = () => {
+    switch (currentView) {
+      case 'list':
+        return <SeniorCitizenList />;
+      case 'create':
+        return (
+          <SeniorCitizenForm 
+            onSave={handleSeniorSaved}
+            onCancel={handleFormCancel}
+          />
+        );
+      case 'edit':
+        return (
+          <SeniorCitizenForm 
+            seniorId={editingSeniorId}
+            onSave={handleSeniorSaved}
+            onCancel={handleFormCancel}
+          />
+        );
+      default:
+        return <SeniorCitizenList />;
+    }
+  };
+
   return (
     <div className="app">
       <header className="app-header">
-        <h1>Elderly Data Management System</h1>
-        <p>Welcome to your MVC Electron Application!</p>
+        <h1>Senior Citizen Benefit EDMS</h1>
+        <p>Electronic Data Management System for R.A. 11982</p>
+        <nav className="app-nav">
+          <a href="#/senior-citizens" className={currentView === 'list' ? 'active' : ''}>
+            Senior Citizens Registry
+          </a>
+          <a href="#/senior-citizens/create" className={currentView === 'create' ? 'active' : ''}>
+            Add New Senior Citizen
+          </a>
+        </nav>
       </header>
       
       <main className="app-main">
-        <div className="welcome-card">
-          <h2>Getting Started</h2>
-          <p>This is a clean MVC template. Start building your application:</p>
-          <ul>
-            <li>Create models: <code>npm run make:model Elderly</code></li>
-            <li>Create controllers: <code>npm run make:controller Elderly</code></li>
-            <li>Create views: <code>npm run make:view Elderly --type list</code></li>
-            <li>Or create all at once: <code>npm run make:resource Elderly</code></li>
-          </ul>
-        </div>
+        {renderView()}
       </main>
 
-      <style jsx global>{`
+      <style>{`
         * {
           margin: 0;
           padding: 0;
@@ -48,63 +115,82 @@ const App = () => {
           background: #fff;
           box-shadow: 0 2px 4px rgba(0,0,0,0.1);
           padding: 20px;
-          text-align: center;
+          position: sticky;
+          top: 0;
+          z-index: 100;
         }
 
         .app-header h1 {
-          margin-bottom: 10px;
+          margin-bottom: 5px;
           color: #2c3e50;
           font-size: 28px;
         }
 
         .app-header p {
+          margin-bottom: 15px;
+          color: #7f8c8d;
+          font-size: 14px;
+        }
+
+        .app-nav {
+          display: flex;
+          gap: 20px;
+        }
+
+        .app-nav a {
+          text-decoration: none;
           color: #6c757d;
-          font-size: 16px;
+          padding: 8px 16px;
+          border-radius: 4px;
+          transition: all 0.2s;
+        }
+
+        .app-nav a:hover {
+          background: #f8f9fa;
+          color: #495057;
+        }
+
+        .app-nav a.active {
+          background: #3498db;
+          color: white;
         }
 
         .app-main {
           flex: 1;
-          padding: 40px 20px;
-          display: flex;
-          justify-content: center;
-          align-items: flex-start;
+          padding: 20px;
         }
 
-        .welcome-card {
-          background: #fff;
-          padding: 40px;
-          border-radius: 8px;
-          box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-          max-width: 600px;
-          width: 100%;
+        /* Utility classes */
+        .text-center {
+          text-align: center;
         }
 
-        .welcome-card h2 {
+        .mb-20 {
           margin-bottom: 20px;
-          color: #2c3e50;
         }
 
-        .welcome-card p {
-          margin-bottom: 20px;
-          line-height: 1.6;
+        .mt-20 {
+          margin-top: 20px;
         }
 
-        .welcome-card ul {
-          list-style: none;
-          padding: 0;
-        }
+        /* Responsive design */
+        @media (max-width: 768px) {
+          .app-header {
+            padding: 15px;
+          }
 
-        .welcome-card li {
-          margin-bottom: 10px;
-          padding: 10px;
-          background: #f8f9fa;
-          border-radius: 4px;
-          font-family: 'Courier New', monospace;
-        }
+          .app-header h1 {
+            font-size: 20px;
+          }
 
-        .welcome-card code {
-          color: #007bff;
-          font-weight: bold;
+          .app-nav {
+            flex-direction: column;
+            gap: 10px;
+          }
+
+          .app-main {
+            padding: 15px;
+          }
         }
       `}</style>
     </div>

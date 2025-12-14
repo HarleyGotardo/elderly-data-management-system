@@ -1,12 +1,6 @@
 import { app, BrowserWindow, ipcMain } from 'electron';
 import path from 'node:path';
-import started from 'electron-squirrel-startup';
 import router from '../app/Routes/web.js';
-
-// Handle creating/removing shortcuts on Windows when installing/uninstalling.
-if (started) {
-  app.quit();
-}
 
 const createWindow = () => {
   // Create the browser window.

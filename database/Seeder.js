@@ -21,38 +21,13 @@ class Seeder {
 
   async createSeeder(name) {
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
-    const filename = `${timestamp}_${name}.js`;
+    const filename = timestamp + '_' + name + '.js';
     const filepath = path.join(this.seedersPath, filename);
     
-    const template = `const db = require('../config');
-
-module.exports = {
-  async run() {
-    // Add your seeder logic here
-    const insert = db.prepare(\`
-      INSERT INTO example_table (name) VALUES (?)
-    \`);
-    
-    const data = [
-      'Sample Item 1',
-      'Sample Item 2',
-      'Sample Item 3'
-    ];
-
-    const transaction = db.transaction(() => {
-      for (const item of data) {
-        insert.run(item);
-      }
-    });
-
-    transaction();
-    console.log('Example table seeded successfully!');
-  }
-};
-`;
+    const template = 'const db = require(\'../config\');\n\nmodule.exports = {\n  async run() {\n    console.log(\'Seeder executed\');\n  }\n};\n';
 
     fs.writeFileSync(filepath, template);
-    console.log(`Seeder created: ${filename}`);
+    console.log('Seeder created: ' + filename);
     return filename;
   }
 
@@ -73,15 +48,15 @@ module.exports = {
       try {
         const seeder = require(path.join(this.seedersPath, file));
         
-        console.log(`Running seeder: ${file}`);
+        console.log('Running seeder: ' + file);
         await seeder.run();
 
         const stmt = db.prepare('INSERT INTO seeders (seeder) VALUES (?)');
         stmt.run(file);
 
-        console.log(`Seeder completed: ${file}`);
+        console.log('Seeder completed: ' + file);
       } catch (error) {
-        console.error(`Error running seeder ${file}:`, error);
+        console.error('Error running seeder ' + file + ':', error);
         throw error;
       }
     }

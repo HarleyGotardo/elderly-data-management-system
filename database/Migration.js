@@ -22,34 +22,13 @@ class Migration {
 
   async createMigration(name) {
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
-    const filename = `${timestamp}_${name}.js`;
+    const filename = timestamp + '_' + name + '.js';
     const filepath = path.join(this.migrationsPath, filename);
     
-    const template = `const db = require('../config');
-
-module.exports = {
-  async up() {
-    // Add your migration logic here
-    const createTable = \`
-      CREATE TABLE IF NOT EXISTS example_table (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name VARCHAR(255) NOT NULL,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-      )
-    \`;
-    db.exec(createTable);
-  },
-
-  async down() {
-    // Add your rollback logic here
-    db.exec('DROP TABLE IF EXISTS example_table');
-  }
-};
-`;
+    const template = 'const db = require(\'../config\');\n\nmodule.exports = {\n  async up() {\n    db.exec(\'CREATE TABLE IF NOT EXISTS example_table (id INTEGER PRIMARY KEY)\');\n  },\n  async down() {\n    db.exec(\'DROP TABLE IF EXISTS example_table\');\n  }\n};\n';
 
     fs.writeFileSync(filepath, template);
-    console.log(`Migration created: ${filename}`);
+    console.log('Migration created: ' + filename);
     return filename;
   }
 
@@ -72,20 +51,20 @@ module.exports = {
       try {
         const migration = require(path.join(this.migrationsPath, file));
         
-        console.log(`Running migration: ${file}`);
+        console.log('Running migration: ' + file);
         await migration.up();
 
         const stmt = db.prepare('INSERT INTO migrations (migration, batch) VALUES (?, ?)');
         stmt.run(file, batch);
 
-        console.log(`Migration completed: ${file}`);
+        console.log('Migration completed: ' + file);
       } catch (error) {
-        console.error(`Error running migration ${file}:`, error);
+        console.error('Error running migration ' + file + ':', error);
         throw error;
       }
     }
 
-    console.log(`All migrations completed! Batch: ${batch}`);
+    console.log('All migrations completed! Batch: ' + batch);
   }
 
   async rollbackLastBatch() {
@@ -99,27 +78,28 @@ module.exports = {
     const migrationsToRollback = db.prepare('SELECT migration FROM migrations WHERE batch = ? ORDER BY migration DESC')
       .all(lastBatch);
 
-    for (const { migration } of migrationsToRollback) {
+    for (const row of migrationsToRollback) {
+      const migrationName = row.migration;
       try {
-        const migrationFile = path.join(this.migrationsPath, migration);
+        const migrationFile = path.join(this.migrationsPath, migrationName);
         if (fs.existsSync(migrationFile)) {
           const migration = require(migrationFile);
           
-          console.log(`Rolling back migration: ${migration}`);
+          console.log('Rolling back migration: ' + migrationName);
           await migration.down();
 
           const stmt = db.prepare('DELETE FROM migrations WHERE migration = ? AND batch = ?');
-          stmt.run(migration, lastBatch);
+          stmt.run(migrationName, lastBatch);
 
-          console.log(`Migration rolled back: ${migration}`);
+          console.log('Migration rolled back: ' + migrationName);
         }
       } catch (error) {
-        console.error(`Error rolling back migration ${migration}:`, error);
+        console.error('Error rolling back migration ' + migrationName + ':', error);
         throw error;
       }
     }
 
-    console.log(`Rollback completed for batch: ${lastBatch}`);
+    console.log('Rollback completed for batch: ' + lastBatch);
   }
 
   getExecutedMigrations() {
@@ -140,17 +120,17 @@ module.exports = {
   async reset() {
     const migrations = this.getExecutedMigrations();
     
-    for (const migration of migrations.reverse()) {
+    for (const migrationName of migrations.reverse()) {
       try {
-        const migrationFile = path.join(this.migrationsPath, migration);
+        const migrationFile = path.join(this.migrationsPath, migrationName);
         if (fs.existsSync(migrationFile)) {
           const migration = require(migrationFile);
           
-          console.log(`Rolling back migration: ${migration}`);
+          console.log('Rolling back migration: ' + migrationName);
           await migration.down();
         }
       } catch (error) {
-        console.error(`Error rolling back migration ${migration}:`, error);
+        console.error('Error rolling back migration ' + migrationName + ':', error);
       }
     }
 
