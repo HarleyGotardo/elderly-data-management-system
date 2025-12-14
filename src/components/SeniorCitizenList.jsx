@@ -1,6 +1,15 @@
 import React, { useState, useEffect } from 'react';
 
 const SeniorCitizenList = () => {
+  const [seniorCitizens, setSeniorCitizens] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
+  const [syncing, setSyncing] = useState(false);
+  const [syncMessage, setSyncMessage] = useState(null);
   // Utility function to calculate age from date of birth
   const calculateAge = (dateOfBirth) => {
     if (!dateOfBirth) return null;
@@ -44,13 +53,6 @@ const SeniorCitizenList = () => {
     }
     return fullName || '-';
   };
-  const [seniorCitizens, setSeniorCitizens] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
   const [stats, setStats] = useState(null);
 
   useEffect(() => {
@@ -157,6 +159,35 @@ const SeniorCitizenList = () => {
       }
     } catch (err) {
       setError('Failed to submit record');
+    }
+  };
+
+  const handleSync = async () => {
+    if (!confirm('Sync approved records to Supabase? This will upload all approved records to the central database.')) {
+      return;
+    }
+
+    setSyncing(true);
+    setSyncMessage(null);
+    
+    try {
+      const response = await window.electronAPI.request({
+        method: 'POST',
+        url: '/api/sync/upload/1' // TODO: Get actual LGU ID from auth
+      });
+      
+      if (response.data && response.data.success) {
+        setSyncMessage(response.data.message);
+        fetchSeniorCitizens(currentPage);
+        fetchStats();
+      } else {
+        setError(response.data?.message || 'Sync failed');
+      }
+    } catch (err) {
+      setError('Failed to sync to Supabase. Check your internet connection.');
+    } finally {
+      setSyncing(false);
+      setTimeout(() => setSyncMessage(null), 5000);
     }
   };
 
@@ -357,7 +388,17 @@ const SeniorCitizenList = () => {
         <button onClick={handleImport}>
           Import Updates
         </button>
+        <button onClick={handleSync} disabled={syncing} className="sync-btn">
+          {syncing ? 'Syncing...' : 'Sync to Supabase'}
+        </button>
       </div>
+
+      {/* Sync Message */}
+      {syncMessage && (
+        <div className="sync-message">
+          {syncMessage}
+        </div>
+      )}
 
       {/* Error Message */}
       {error && <div className="error">{error}</div>}
@@ -802,6 +843,28 @@ const SeniorCitizenList = () => {
           background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
           color: white;
           border: 1px solid #a93226;
+        }
+
+        .sync-btn {
+          background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+          color: white;
+          border: 1px solid #1e8449;
+        }
+
+        .sync-btn:disabled {
+          background: #95a5a6;
+          border: 1px solid #7f8c8d;
+          cursor: not-allowed;
+        }
+
+        .sync-message {
+          background: #d4edda;
+          color: #155724;
+          padding: 12px 20px;
+          margin: 10px 0;
+          border: 1px solid #c3e6cb;
+          border-radius: 5px;
+          font-weight: 600;
         }
 
         .pagination {

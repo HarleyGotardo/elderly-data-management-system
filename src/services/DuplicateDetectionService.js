@@ -21,7 +21,7 @@ class DuplicateDetectionService {
   checkLocalDuplicates(record, lguId) {
     const stmt = this.db.prepare(`
       SELECT id, osca_id, last_name, first_name, middle_name, 
-             date_of_birth, house_no_street, barangay, city_municipality,
+             date_of_birth, house_number, street, barangay, municipality,
              sync_status, created_at
       FROM senior_citizens
       WHERE lgu_id = ?
@@ -80,7 +80,7 @@ class DuplicateDetectionService {
   findExactMatches(record, excludeLguId) {
     const stmt = this.db.prepare(`
       SELECT id, lgu_id, osca_id, last_name, first_name, middle_name,
-             date_of_birth, house_no_street, barangay, city_municipality,
+             date_of_birth, house_number, street, barangay, municipality,
              sync_status, created_at
       FROM senior_citizens
       WHERE lgu_id != ?
@@ -141,7 +141,7 @@ class DuplicateDetectionService {
 
     const stmt = this.db.prepare(`
       SELECT id, lgu_id, osca_id, last_name, first_name, middle_name,
-             date_of_birth, house_no_street, barangay, city_municipality,
+             date_of_birth, house_number, street, barangay, municipality,
              sync_status, created_at
       FROM senior_citizens
       WHERE ${whereClause}
@@ -173,13 +173,13 @@ class DuplicateDetectionService {
   findBirthdateAddressMatches(record, excludeLguId) {
     const stmt = this.db.prepare(`
       SELECT id, lgu_id, osca_id, last_name, first_name, middle_name,
-             date_of_birth, house_no_street, barangay, city_municipality,
+             date_of_birth, house_number, street, barangay, municipality,
              sync_status, created_at
       FROM senior_citizens
       WHERE lgu_id != ?
       AND date_of_birth = ?
       AND barangay = ?
-      AND city_municipality = ?
+      AND municipality = ?
       AND LOWER(last_name) != ?
       AND LOWER(first_name) != ?
       ORDER BY created_at DESC
@@ -190,7 +190,7 @@ class DuplicateDetectionService {
       excludeLguId,
       record.date_of_birth,
       record.barangay,
-      record.city_municipality,
+      record.municipality,
       record.last_name.toLowerCase(),
       record.first_name.toLowerCase()
     );

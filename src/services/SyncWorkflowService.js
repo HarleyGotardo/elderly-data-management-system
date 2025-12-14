@@ -13,7 +13,7 @@ class SyncWorkflowService {
     this.exportService = new USBExportService(localDb);
     this.importService = new USBImportService(localDb);
     this.statusService = new StatusUpdateService(localDb);
-    this.autoSyncService = new AutoSyncService(localDb);
+    this.autoSyncService = new AutoSyncService(localDb, lguId, null);
     this.cryptoUtils = new CryptoUtils();
   }
 
@@ -41,37 +41,36 @@ class SyncWorkflowService {
       }
 
       // Local Duplicate Check: Name + DOB within LGU
-      const localDuplicate = this.duplicateService.checkLocalDuplicate(
-        applicantData.first_name,
-        applicantData.last_name,
-        applicantData.date_of_birth,
+      const localDuplicate = this.duplicateService.checkLocalDuplicates(
+        applicantData,
         this.lguId
       );
 
-      if (localDuplicate) {
+      if (localDuplicate.length > 0) {
         throw new Error('Applicant already exists in your list');
       }
 
       // Save to local database
       const stmt = this.db.prepare(`
         INSERT INTO senior_citizens (
-          lgu_id, first_name, last_name, middle_name, ext_name,
+          lgu_id, osca_id, ncsc_rrn, first_name, last_name, middle_name, ext_name,
           date_of_birth, sex, civil_status, citizenship,
           is_ip, ip_group, is_pwd, pwd_type,
           region, province, municipality, barangay,
-          house_number, street, postal_code,
-          contact_number, email,
+          house_number, street,
           spouse_name,
-          rep_1_name, rep_1_relationship, rep_1_contact,
-          rep_2_name, rep_2_relationship, rep_2_contact,
-          rep_3_name, rep_3_relationship, rep_3_contact,
+          rep_1_name, rep_1_relationship,
+          rep_2_name, rep_2_relationship,
+          rep_3_name, rep_3_relationship,
           beneficiary_primary, beneficiary_contingent,
           sync_status, created_at, updated_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
       `);
 
       const result = stmt.run(
         this.lguId,
+        applicantData.osca_id,
+        applicantData.ncsc_rrn || null,
         applicantData.first_name,
         applicantData.last_name,
         applicantData.middle_name || null,
@@ -90,19 +89,13 @@ class SyncWorkflowService {
         applicantData.barangay,
         applicantData.house_number || null,
         applicantData.street || null,
-        applicantData.postal_code || null,
-        applicantData.contact_number || null,
-        applicantData.email || null,
         applicantData.spouse_name || null,
         applicantData.rep_1_name || null,
         applicantData.rep_1_relationship || null,
-        applicantData.rep_1_contact || null,
         applicantData.rep_2_name || null,
         applicantData.rep_2_relationship || null,
-        applicantData.rep_2_contact || null,
         applicantData.rep_3_name || null,
         applicantData.rep_3_relationship || null,
-        applicantData.rep_3_contact || null,
         applicantData.beneficiary_primary || null,
         applicantData.beneficiary_contingent || null,
         'DRAFT'
@@ -130,7 +123,7 @@ class SyncWorkflowService {
     try {
       // Check if record exists and belongs to this LGU
       const record = this.db.prepare(`
-        SELECT id, sync_status FROM senior_citizens 
+        SELECT id, status FROM senior_citizens 
         WHERE id = ? AND lgu_id = ?
       `).get(recordId, this.lguId);
 
@@ -138,14 +131,14 @@ class SyncWorkflowService {
         throw new Error('Record not found');
       }
 
-      if (record.sync_status !== 'DRAFT') {
+      if (record.status !== 'DRAFT') {
         throw new Error('Only draft records can be submitted');
       }
 
       // Lock record and update status
       this.db.prepare(`
         UPDATE senior_citizens 
-        SET sync_status = 'PENDING_ADMIN_REVIEW',
+        SET status = 'PENDING_ADMIN_REVIEW',
             locked = 1,
             submitted_at = CURRENT_TIMESTAMP,
             updated_at = CURRENT_TIMESTAMP

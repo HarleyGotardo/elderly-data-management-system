@@ -1,4 +1,4 @@
-const { v4: uuidv4 } = require('uuid');
+import { v4 as uuidv4 } from 'uuid';
 
 class SyncQueue {
   constructor(db) {
@@ -267,4 +267,4 @@ class SyncQueue {
   }
 }
 
-module.exports = SyncQueue;
+export default SyncQueue;

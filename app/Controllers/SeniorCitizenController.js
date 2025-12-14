@@ -1,7 +1,22 @@
 import Controller from './Controller.js';
 import SeniorCitizen from '../Models/SeniorCitizen.js';
+import db from '../../database/config.js';
 
 class SeniorCitizenController extends Controller {
+  constructor() {
+    super();
+    // Import SyncWorkflowService dynamically to avoid main process issues
+    this.SyncWorkflowService = null;
+  }
+
+  async getWorkflowService() {
+    if (!this.SyncWorkflowService) {
+      // Import from the services index to avoid code-splitting issues
+      const module = await import('../../src/services/index.js');
+      this.SyncWorkflowService = module.SyncWorkflowService;
+    }
+    return this.SyncWorkflowService;
+  }
   /**
    * Get all senior citizens for the LGU
    */
@@ -74,33 +89,18 @@ class SeniorCitizenController extends Controller {
       const lguId = 1; // TODO: Get from authenticated user
       data.lgu_id = lguId;
       
-      // Validate data
-      const errors = SeniorCitizen.validate(data);
-      if (errors) {
-        return this.error('Validation failed', 422, errors);
+      // Use SyncWorkflowService for validation and creation
+      const WorkflowService = await this.getWorkflowService();
+      const workflow = new WorkflowService(db, lguId);
+      
+      const result = await workflow.addApplicant(data);
+      
+      if (!result.success) {
+        return this.error(result.error, 400);
       }
       
-      // Check for duplicate within LGU (Name + DOB)
-      const existing = SeniorCitizen.checkDuplicateInLgu(
-        data.full_name || `${data.last_name}, ${data.first_name}`,
-        data.date_of_birth,
-        lguId
-      );
-      
-      if (existing) {
-        return this.error('Applicant already exists in your list', 409);
-      }
-      
-      // Check OSCA ID uniqueness
-      if (data.osca_id) {
-        const existingOsca = SeniorCitizen.findByOscaId(data.osca_id);
-        if (existingOsca) {
-          return this.error('OSCA ID already exists', 409);
-        }
-      }
-      
-      // Create senior citizen
-      const senior = SeniorCitizen.create(data);
+      // Return the created record
+      const senior = SeniorCitizen.find(result.recordId);
       
       return this.success(senior.toJSON(), 'Senior citizen created successfully');
     });
@@ -217,27 +217,23 @@ class SeniorCitizenController extends Controller {
         return this.error('ID is required', 400);
       }
       
+      // Get LGU ID from session/auth
+      const lguId = 1; // TODO: Get from authenticated user
+      
+      // Use SyncWorkflowService for submission
+      const WorkflowService = await this.getWorkflowService();
+      const workflow = new WorkflowService(db, lguId);
+      
+      const result = await workflow.submitToAdmin(id);
+      
+      if (!result.success) {
+        return this.error(result.error, 400);
+      }
+      
+      // Return the updated record
       const senior = SeniorCitizen.find(id);
       
-      if (!senior) {
-        return this.error('Senior citizen not found', 404);
-      }
-      
-      // Check if user can access this record
-      const lguId = 1; // TODO: Get from authenticated user
-      if (senior.get('lgu_id') !== lguId) {
-        return this.error('Access denied', 403);
-      }
-      
-      // Check if already submitted
-      if (senior.get('status') !== 'DRAFT') {
-        return this.error('Only draft records can be submitted', 400);
-      }
-      
-      // Submit to admin
-      await senior.submitToAdmin();
-      
-      return this.success(senior, 'Record submitted for admin review');
+      return this.success(senior.toJSON(), result.message);
     });
   }
 

@@ -2,11 +2,6 @@ const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 import router from '../app/Routes/web.js';
 
-// Create window when app is ready
-app.whenReady().then(() => {
-  createWindow();
-});
-
 const createWindow = () => {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
@@ -31,9 +26,7 @@ const createWindow = () => {
   mainWindow.webContents.openDevTools();
 };
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
+// Create window when app is ready
 app.whenReady().then(() => {
   createWindow();
 

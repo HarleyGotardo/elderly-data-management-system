@@ -26,11 +26,15 @@ export const AuthProvider = ({ children }) => {
           // Verify the session is still valid by checking with the backend
           const response = await window.electronAPI.request({
             method: 'GET',
-            url: '/api/auth/verify/${userId}'
+            url: `/api/auth/verify/${userId}`
           });
           
           if (response.data && response.data.success) {
-            setCurrentUser({ id: userId, username, role });
+            setCurrentUser({ 
+              id: userId, 
+              username: response.data.data.username, 
+              role: response.data.data.role 
+            });
           } else {
             // Session invalid, clear it
             localStorage.removeItem('authSession');

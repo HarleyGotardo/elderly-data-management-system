@@ -1,7 +1,7 @@
-const EventEmitter = require('events');
-const SyncQueue = require('./SyncQueue');
-const USBExportService = require('./USBExportService');
-const USBImportService = require('./USBImportService');
+import { EventEmitter } from 'events';
+import SyncQueue from './SyncQueue.js';
+import USBExportService from './USBExportService.js';
+import USBImportService from './USBImportService.js';
 
 class AutoSyncService extends EventEmitter {
   constructor(db, lguId, apiClient) {
@@ -37,8 +37,8 @@ class AutoSyncService extends EventEmitter {
     };
     
     // Bind methods
-    this.startAutoSync = this.startAutoSync.bind(this);
-    this.stopAutoSync = this.stopAutoSync.bind(this);
+    this.start = this.start.bind(this);
+    this.stop = this.stop.bind(this);
     this.performSync = this.performSync.bind(this);
   }
 
@@ -428,5 +428,3 @@ class AutoSyncService extends EventEmitter {
 }
 
 export default AutoSyncService;
-
-module.exports = AutoSyncService;

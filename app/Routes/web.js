@@ -49,4 +49,8 @@ router.get('/api/sync/duplicates/report', { controller: SyncController, method: 
 router.post('/api/sync/status-updates/{lgu_id}', { controller: SyncController, method: 'generateStatusUpdates' });
 router.get('/api/sync/pending-updates', { controller: SyncController, method: 'getLGUsWithPendingUpdates' });
 
+// Supabase sync routes
+router.post('/api/sync/upload/{lgu_id}', { controller: SyncController, method: 'syncToSupabase' });
+router.post('/api/sync/full/{lgu_id}', { controller: SyncController, method: 'fullSync' });
+
 export default router;

@@ -1,4 +1,5 @@
 import Controller from './Controller.js';
+import SupabaseSyncService from '../../src/services/SupabaseSyncService.js';
 import db from '../../database/config.js';
 
 class SyncController extends Controller {
@@ -8,34 +9,57 @@ class SyncController extends Controller {
   }
 
   /**
-   * Get sync status for LGU
+   * Sync approved records to Supabase
    */
-  async getSyncStatus(request) {
-    try {
+  async syncToSupabase(request) {
+    return this.handle(async () => {
       const { lgu_id } = request.params;
       
-      // Simple sync stats
-      const stats = this.db.prepare(`
-        SELECT 
-          COUNT(*) as total,
-          COUNT(CASE WHEN sync_status = 'DRAFT' THEN 1 END) as draft,
-          COUNT(CASE WHEN sync_status = 'PENDING_ADMIN_REVIEW' THEN 1 END) as pending,
-          COUNT(CASE WHEN sync_status = 'APPROVED' THEN 1 END) as approved,
-          COUNT(CASE WHEN sync_status = 'DENIED' THEN 1 END) as denied
-        FROM senior_citizens 
-        WHERE lgu_id = ?
-      `).get(lgu_id);
+      // Initialize sync service
+      const syncService = new SupabaseSyncService(this.db, lgu_id);
       
-      return {
-        success: true,
-        data: { stats }
-      };
-    } catch (error) {
-      return {
-        success: false,
-        message: error.message
-      };
-    }
+      // Check connectivity first
+      const isConnected = await syncService.checkConnectivity();
+      if (!isConnected) {
+        return this.error('No internet connection. Cannot sync to Supabase.', 503);
+      }
+      
+      // Perform sync
+      const result = await syncService.uploadPendingRecords();
+      
+      if (!result.success) {
+        return this.error(result.error, 500);
+      }
+      
+      return this.success(result, `Sync completed: ${result.uploaded} uploaded, ${result.failed} failed`);
+    });
+  }
+
+  /**
+   * Full sync (upload and download)
+   */
+  async fullSync(request) {
+    return this.handle(async () => {
+      const { lgu_id } = request.params;
+      
+      // Initialize sync service
+      const syncService = new SupabaseSyncService(this.db, lgu_id);
+      
+      // Check connectivity first
+      const isConnected = await syncService.checkConnectivity();
+      if (!isConnected) {
+        return this.error('No internet connection. Cannot sync to Supabase.', 503);
+      }
+      
+      // Perform full sync
+      const result = await syncService.fullSync();
+      
+      if (!result.success) {
+        return this.error(result.error, 500);
+      }
+      
+      return this.success(result, `Full sync completed successfully`);
+    });
   }
 
   /**
@@ -66,33 +90,35 @@ class SyncController extends Controller {
   }
 
   /**
-   * Export data to USB (simplified version)
+   * Export data to USB
    */
   async exportToUSB(request) {
     try {
       const { lgu_id } = request.params;
-      const { include_drafts = false } = request.body;
+      const { include_drafts, include_requirements, password } = request.body;
       
-      // Get records to export
-      const records = this.db.prepare(`
-        SELECT * FROM senior_citizens 
-        WHERE lgu_id = ? 
-        AND (sync_status != 'DRAFT' OR ? = true)
-      `).all(lgu_id, include_drafts);
+      // Import USBExportService dynamically
+      const { default: USBExportService } = await import('../../src/services/USBExportService.js');
+      const exportService = new USBExportService(this.db, lgu_id);
       
-      // Simple export data
-      const exportData = {
-        metadata: {
-          lgu_id,
-          export_date: new Date().toISOString(),
-          record_count: records.length
-        },
-        records: records
-      };
+      const result = await exportService.exportToUSB({
+        includeDrafts: include_drafts || false,
+        includeRequirements: include_requirements || true,
+        customPassword: password
+      });
+      
+      // Read the file and return as base64 for download
+      const fs = await import('fs');
+      const fileData = fs.readFileSync(result.filepath, 'base64');
       
       return {
         success: true,
-        data: exportData
+        data: {
+          filename: result.filename,
+          batch_id: result.batch_id,
+          record_count: result.record_count,
+          file_data: fileData
+        }
       };
     } catch (error) {
       return {
@@ -103,44 +129,37 @@ class SyncController extends Controller {
   }
 
   /**
-   * Import status updates (simplified version)
+   * Import status updates from USB
    */
   async importFromUSB(request) {
     try {
       const { lgu_id } = request.params;
-      const { updates } = request.body;
+      const { file_data, password } = request.body;
       
-      let updatedCount = 0;
+      // Import required modules dynamically
+      const fs = await import('fs');
+      const path = await import('path');
+      const { default: USBImportService } = await import('../../src/services/USBImportService.js');
       
-      // Process updates
-      for (const update of updates) {
-        const stmt = this.db.prepare(`
-          UPDATE senior_citizens 
-          SET sync_status = ?, 
-              admin_notes = ?,
-              payment_status = ?,
-              payment_date = ?,
-              updated_at = CURRENT_TIMESTAMP
-          WHERE id = ? AND lgu_id = ?
-        `);
-        
-        const result = stmt.run(
-          update.status,
-          update.remarks || null,
-          update.payment_status || null,
-          update.payment_date || null,
-          update.id,
-          lgu_id
-        );
-        
-        if (result.changes > 0) {
-          updatedCount++;
-        }
+      // Create temporary file
+      const tempDir = path.join(process.cwd(), 'temp_imports');
+      if (!fs.existsSync(tempDir)) {
+        fs.mkdirSync(tempDir, { recursive: true });
       }
+      
+      const tempFile = path.join(tempDir, `import_${Date.now()}.enc`);
+      fs.writeFileSync(tempFile, file_data, 'base64');
+      
+      // Import the file
+      const importService = new USBImportService(this.db, lgu_id);
+      const result = await importService.importFromUSB(tempFile, password);
+      
+      // Clean up temp file
+      fs.unlinkSync(tempFile);
       
       return {
         success: true,
-        data: { updated_count: updatedCount }
+        data: result
       };
     } catch (error) {
       return {
@@ -151,19 +170,36 @@ class SyncController extends Controller {
   }
 
   /**
-   * Force sync (placeholder - would need Supabase integration)
+   * Force sync now
    */
   async forceSync(request) {
     try {
       const { lgu_id } = request.params;
       
-      // Placeholder for sync implementation
+      // Initialize Supabase sync service
+      const syncService = new SupabaseSyncService(this.db, lgu_id);
+      
+      // Check connectivity first
+      const isOnline = await syncService.checkConnectivity();
+      
+      if (!isOnline) {
+        return {
+          success: false,
+          message: 'No internet connection. Please check your network and try again.'
+        };
+      }
+      
+      // Perform full sync
+      const result = await syncService.fullSync();
+      
       return {
-        success: true,
+        success: result.success,
         data: {
-          uploaded: 0,
-          downloaded: 0,
-          message: 'Sync functionality requires Supabase configuration'
+          uploaded: result.upload?.uploaded || 0,
+          downloaded: result.download?.downloaded || 0,
+          failed_uploads: result.upload?.failed || 0,
+          failed_downloads: result.download?.failed || 0,
+          message: result.success ? 'Sync completed successfully' : 'Sync completed with errors'
         }
       };
     } catch (error) {
@@ -175,35 +211,17 @@ class SyncController extends Controller {
   }
 
   /**
-   * Submit record to admin (simplified)
+   * Submit record to admin
    */
   async submitToAdmin(request) {
     try {
       const { record_id } = request.params;
       const { lgu_id } = request.body;
       
-      // Update record status
-      const stmt = this.db.prepare(`
-        UPDATE senior_citizens 
-        SET sync_status = 'PENDING_ADMIN_REVIEW',
-            submitted_at = CURRENT_TIMESTAMP,
-            updated_at = CURRENT_TIMESTAMP
-        WHERE id = ? AND lgu_id = ?
-      `);
+      const syncService = new SupabaseSyncService(this.db, lgu_id);
+      const result = await syncService.submitToAdmin(record_id);
       
-      const result = stmt.run(record_id, lgu_id);
-      
-      if (result.changes === 0) {
-        return {
-          success: false,
-          message: 'Record not found'
-        };
-      }
-      
-      return {
-        success: true,
-        message: 'Record submitted for admin review'
-      };
+      return result;
     } catch (error) {
       return {
         success: false,
@@ -213,15 +231,19 @@ class SyncController extends Controller {
   }
 
   /**
-   * Check connectivity (placeholder)
+   * Check connectivity
    */
   async checkConnectivity(request) {
     try {
-      // Placeholder for connectivity check
+      const { lgu_id } = request.params;
+      
+      const syncService = new SupabaseSyncService(this.db, lgu_id);
+      const isOnline = await syncService.checkConnectivity();
+      
       return {
         success: true,
-        online: false,
-        message: 'Connectivity check requires Supabase configuration'
+        online: isOnline,
+        message: isOnline ? 'Connected to Supabase' : 'No internet connection'
       };
     } catch (error) {
       return {
@@ -233,13 +255,17 @@ class SyncController extends Controller {
   }
 
   /**
-   * Check duplicates (simplified version)
+   * Check for duplicates (Admin only)
    */
   async checkDuplicates(request) {
     try {
       const { record_id } = request.params;
       
-      // Get the record
+      // Import DuplicateDetectionService dynamically
+      const { default: DuplicateDetectionService } = await import('../../src/services/DuplicateDetectionService.js');
+      const duplicateService = new DuplicateDetectionService(this.db);
+      
+      // Get the record to check
       const record = this.db.prepare(`
         SELECT * FROM senior_citizens WHERE id = ?
       `).get(record_id);
@@ -251,26 +277,18 @@ class SyncController extends Controller {
         };
       }
       
-      // Check for duplicates based on name and birthdate
-      const duplicates = this.db.prepare(`
-        SELECT id, first_name, last_name, date_of_birth, lgu_id
-        FROM senior_citizens 
-        WHERE id != ? 
-        AND LOWER(first_name) = LOWER(?) 
-        AND LOWER(last_name) = LOWER(?) 
-        AND date_of_birth = ?
-      `).all(
-        record_id,
-        record.first_name,
-        record.last_name,
-        record.date_of_birth
-      );
+      // Check local duplicates
+      const localDuplicates = duplicateService.checkLocalDuplicates(record, record.lgu_id);
+      
+      // Check global duplicates
+      const globalDuplicates = duplicateService.checkGlobalDuplicates(record, record.lgu_id);
       
       return {
         success: true,
         data: {
-          duplicates,
-          duplicate_count: duplicates.length
+          record_id,
+          local_duplicates: localDuplicates,
+          global_duplicates: globalDuplicates
         }
       };
     } catch (error) {

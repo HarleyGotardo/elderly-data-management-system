@@ -1,6 +1,6 @@
-const fs = require('fs');
-const path = require('path');
-const CryptoUtils = require('../utils/CryptoUtils');
+import fs from 'fs';
+import path from 'path';
+import CryptoUtils from '../utils/CryptoUtils.js';
 
 class StatusUpdateService {
   constructor(db) {

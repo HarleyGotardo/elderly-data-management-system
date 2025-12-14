@@ -44,7 +44,7 @@ module.exports = {
         rep_3_relationship VARCHAR(100),
         beneficiary_primary VARCHAR(255),
         beneficiary_contingent VARCHAR(255),
-        status VARCHAR(50) DEFAULT 'DRAFT' CHECK (status IN ('DRAFT', 'PENDING_ADMIN_REVIEW', 'CLEAN', 'DUPLICATE', 'SUSPECTED', 'APPROVED', 'HOLD', 'DENIED')),
+        status VARCHAR(50) DEFAULT 'DRAFT' CHECK (status IN ('DRAFT', 'PENDING_ADMIN_REVIEW', 'CLEAN', 'DUPLICATE', 'SUSPECTED', 'APPROVED', 'HOLD', 'DENIED', 'SYNCED')),
         compliance_check VARCHAR(10) CHECK (compliance_check IN ('PASS', 'FAIL')),
         global_duplicate_status VARCHAR(20) CHECK (global_duplicate_status IN ('CLEAN', 'DUPLICATE', 'SUSPECTED')),
         admin_assessment VARCHAR(20) CHECK (admin_assessment IN ('APPROVED', 'HOLD', 'DENIED')),
@@ -54,6 +54,7 @@ module.exports = {
         date_of_death DATE,
         lgu_id INTEGER NOT NULL,
         locked BOOLEAN DEFAULT 0,
+        synced_to_supabase BOOLEAN DEFAULT 0,
         submitted_at DATETIME,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP

@@ -1,7 +1,7 @@
-const fs = require('fs');
-const path = require('path');
-const CryptoUtils = require('../utils/CryptoUtils');
-const SyncQueue = require('./SyncQueue');
+import fs from 'fs';
+import path from 'path';
+import CryptoUtils from '../utils/CryptoUtils.js';
+import SyncQueue from './SyncQueue.js';
 
 class USBExportService {
   constructor(db, lguId) {
