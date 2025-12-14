@@ -26,7 +26,7 @@ export const AuthProvider = ({ children }) => {
           // Verify the session is still valid by checking with the backend
           const response = await window.electronAPI.request({
             method: 'GET',
-            path: `/auth/verify/${userId}`
+            url: '/api/auth/verify/${userId}'
           });
           
           if (response.data && response.data.success) {
@@ -54,7 +54,7 @@ export const AuthProvider = ({ children }) => {
       
       const response = await window.electronAPI.request({
         method: 'POST',
-        path: '/auth/login',
+        url: '/api/auth/login',
         body: { username, password }
       });
       

@@ -70,13 +70,30 @@ class Model {
 
   save() {
     if (this.exists) {
-      const attributes = { ...this.attributes };
-      delete attributes[this.constructor.primaryKey];
-      const columns = Object.keys(attributes);
+      // Exclude generated columns and admin-only columns for updates
+      const excludedColumns = [
+        'full_name', 'full_address', 'age', 'id',
+        'compliance_check', 'global_duplicate_status', 'admin_assessment',
+        'payment_status', 'payment_date', 'date_of_death',
+        'created_at', 'updated_at', 'submitted_at'
+      ];
+      const attrs = { ...this.attributes };
+      delete attrs[this.constructor.primaryKey];
+      // Remove excluded columns
+      excludedColumns.forEach(col => delete attrs[col]);
+      // Remove any empty string values for columns that might have CHECK constraints
+      Object.keys(attrs).forEach(key => {
+        if (attrs[key] === '') {
+          delete attrs[key];
+        }
+      });
+      
+      const columns = Object.keys(attrs);
+      if (columns.length === 0) return this;
       const setClause = columns.map(col => `${col} = ?`).join(', ');
       const sql = `UPDATE ${this.constructor.tableName} SET ${setClause} WHERE ${this.constructor.primaryKey} = ?`;
       const stmt = db.prepare(sql);
-      stmt.run(...Object.values(attributes), this.attributes[this.constructor.primaryKey]);
+      stmt.run(...Object.values(attrs), this.attributes[this.constructor.primaryKey]);
     } else {
       const columns = Object.keys(this.attributes);
       const placeholders = columns.map(() => '?').join(', ');

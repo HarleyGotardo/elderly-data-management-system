@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>IPC Sync Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        button { margin: 10px; padding: 10px 20px; }
+        .result { margin: 10px 0; padding: 10px; background: #f0f0f0; white-space: pre-wrap; }
+        .success { background: #d4edda; }
+        .error { background: #f8d7da; }
+    </style>
+</head>
+<body>
+    <h1>Test Sync via IPC</h1>
+    <p>Use these buttons to test the sync functionality through Electron's IPC system</p>
+    
+    <button onclick="testConnectivity()">1. Test Connectivity</button>
+    <button onclick="testSyncStatus()">2. Check Sync Status</button>
+    <button onclick="testForceSync()">3. Force Sync</button>
+    
+    <div id="results"></div>
+
+    <script>
+        function log(message, isError = false) {
+            const div = document.createElement('div');
+            div.className = 'result ' + (isError ? 'error' : 'success');
+            div.textContent = new Date().toLocaleTimeString() + ': ' + 
+                (typeof message === 'object' ? JSON.stringify(message, null, 2) : message);
+            document.getElementById('results').appendChild(div);
+        }
+        
+        async function testConnectivity() {
+            try {
+                const result = await window.electronAPI.request({
+                    method: 'GET',
+                    url: '/api/sync/connectivity/default'
+                });
+                log(result);
+            } catch (error) {
+                log('Error: ' + error.message, true);
+            }
+        }
+        
+        async function testSyncStatus() {
+            try {
+                const result = await window.electronAPI.request({
+                    method: 'GET',
+                    url: '/api/sync/status/default'
+                });
+                log(result);
+            } catch (error) {
+                log('Error: ' + error.message, true);
+            }
+        }
+        
+        async function testForceSync() {
+            try {
+                const result = await window.electronAPI.request({
+                    method: 'POST',
+                    url: '/api/sync/force/default'
+                });
+                log(result);
+            } catch (error) {
+                log('Error: ' + error.message, true);
+            }
+        }
+    </script>
+</body>
+</html>

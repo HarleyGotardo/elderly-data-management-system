@@ -78,3 +78,42 @@ ipcMain.handle('api-request', async (event, { method, path, body, query }) => {
     };
   }
 });
+
+// IPC handlers for Supabase operations (delegate to renderer)
+ipcMain.handle('supabase-check-connectivity', async (event, lguId) => {
+  // Forward to renderer process
+  event.sender.send('execute-supabase-operation', {
+    operation: 'checkConnectivity',
+    args: [lguId]
+  });
+  
+  // Return a placeholder - actual result comes via IPC
+  return { pending: true };
+});
+
+ipcMain.handle('supabase-upload', async (event, lguId, records) => {
+  event.sender.send('execute-supabase-operation', {
+    operation: 'uploadRecords',
+    args: [lguId, records]
+  });
+  
+  return { pending: true };
+});
+
+ipcMain.handle('supabase-download', async (event, lguId, lastSyncTime) => {
+  event.sender.send('execute-supabase-operation', {
+    operation: 'downloadUpdates',
+    args: [lguId, lastSyncTime]
+  });
+  
+  return { pending: true };
+});
+
+ipcMain.handle('supabase-stats', async (event, lguId) => {
+  event.sender.send('execute-supabase-operation', {
+    operation: 'getSyncStats',
+    args: [lguId]
+  });
+  
+  return { pending: true };
+});

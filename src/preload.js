@@ -5,7 +5,24 @@ const { contextBridge, ipcRenderer } = require('electron');
 
 // Expose API to renderer process
 contextBridge.exposeInMainWorld('electronAPI', {
-  request: (options) => ipcRenderer.invoke('api-request', options),
+  request: (options) => {
+    // Convert fetch-style options to IPC format
+    const url = new URL(options.url, 'http://localhost');
+    return ipcRenderer.invoke('api-request', {
+      method: options.method || 'GET',
+      path: url.pathname + url.search,
+      body: options.body,
+      query: Object.fromEntries(url.searchParams)
+    });
+  },
+  
+  // Supabase operations (renderer-side)
+  supabase: {
+    checkConnectivity: (lguId) => ipcRenderer.invoke('supabase-check-connectivity', lguId),
+    uploadRecords: (lguId, records) => ipcRenderer.invoke('supabase-upload', lguId, records),
+    downloadUpdates: (lguId, lastSyncTime) => ipcRenderer.invoke('supabase-download', lguId, lastSyncTime),
+    getSyncStats: (lguId) => ipcRenderer.invoke('supabase-stats', lguId)
+  },
   
   // Database operations
   database: {

@@ -78,7 +78,7 @@ const SeniorCitizenForm = ({ seniorId, onSave, onCancel }) => {
       setLoading(true);
       const response = await window.electronAPI.request({
         method: 'GET',
-        path: `/senior-citizens/${seniorId}`
+        url: `/api/senior-citizens/${seniorId}`
       });
       
       if (response.data && response.data.success) {
@@ -281,7 +281,7 @@ const SeniorCitizenForm = ({ seniorId, onSave, onCancel }) => {
       
       const requestData = {
         method: isEditing ? 'PUT' : 'POST',
-        path: isEditing ? `/senior-citizens/${seniorId}` : '/senior-citizens',
+        url: isEditing ? `/api/senior-citizens/${seniorId}` : '/api/senior-citizens',
         body: {
           ...formData,
           // Convert boolean fields

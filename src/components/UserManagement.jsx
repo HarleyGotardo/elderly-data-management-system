@@ -24,7 +24,7 @@ const UserManagement = () => {
       const query = roleFilter ? { role: roleFilter } : {};
       const response = await window.electronAPI.request({
         method: 'GET',
-        path: '/users',
+        url: '/api/users',
         query
       });
       
@@ -73,7 +73,7 @@ const UserManagement = () => {
       try {
         const response = await window.electronAPI.request({
           method: 'DELETE',
-          path: `/users/${user.id}`
+          url: `/api/users/${user.id}`
         });
         
         if (response.data && response.data.success) {
@@ -564,11 +564,11 @@ const UserForm = ({ user, onClose, onSave }) => {
     
     try {
       const method = user ? 'PUT' : 'POST';
-      const path = user ? `/users/${user.id}` : '/users';
+      const url = user ? `/api/users/${user.id}` : '/api/users';
       
       const response = await window.electronAPI.request({
         method,
-        path,
+        url,
         body: formData
       });
       

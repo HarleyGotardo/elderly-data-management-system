@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simple Sync Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        button { margin: 10px; padding: 10px 20px; }
+        .result { margin: 10px 0; padding: 10px; background: #f0f0f0; white-space: pre-wrap; }
+        .success { background: #d4edda; }
+        .error { background: #f8d7da; }
+    </style>
+</head>
+<body>
+    <h1>Direct Supabase Test</h1>
+    <p>Testing Supabase operations directly in renderer process</p>
+    
+    <button onclick="testConnectivity()">Test Connectivity</button>
+    <button onclick="testLocalSync()">Test Local Sync Status</button>
+    <button onclick="testFullSync()">Test Full Sync Flow</button>
+    
+    <div id="results"></div>
+
+    <script type="module">
+        import supabaseService from '/src/services/SupabaseRendererService.js';
+        
+        window.log = function(message, isError = false) {
+            const div = document.createElement('div');
+            div.className = 'result ' + (isError ? 'error' : 'success');
+            div.textContent = new Date().toLocaleTimeString() + ': ' + 
+                (typeof message === 'object' ? JSON.stringify(message, null, 2) : message);
+            document.getElementById('results').appendChild(div);
+        };
+        
+        window.testConnectivity = async function() {
+            try {
+                const result = await supabaseService.checkConnectivity('default');
+                log(result);
+            } catch (error) {
+                log('Error: ' + error.message, true);
+            }
+        };
+        
+        window.testLocalSync = async function() {
+            try {
+                // Get local sync status via IPC
+                const result = await window.electronAPI.request({
+                    method: 'GET',
+                    url: '/api/sync/status/default'
+                });
+                log(result);
+            } catch (error) {
+                log('Error: ' + error.message, true);
+            }
+        };
+        
+        window.testFullSync = async function() {
+            try {
+                log('Starting full sync test...');
+                
+                // 1. Check connectivity
+                const connResult = await supabaseService.checkConnectivity('default');
+                log('Step 1 - Connectivity: ' + (connResult.online ? '✅ Online' : '❌ Offline'));
+                
+                if (!connResult.online) {
+                    log('Cannot sync - offline', true);
+                    return;
+                }
+                
+                // 2. Get local pending records
+                const localResult = await window.electronAPI.request({
+                    method: 'GET',
+                    url: '/api/sync/status/default'
+                });
+                
+                const pendingCount = localResult.data?.stats?.PENDING_UPLOAD || 0;
+                log('Step 2 - Local pending records: ' + pendingCount);
+                
+                if (pendingCount === 0) {
+                    log('No records to sync');
+                    return;
+                }
+                
+                // 3. Get pending records from local DB
+                const pendingRecords = await window.electronAPI.request({
+                    method: 'GET',
+                    url: '/api/senior-citizens?sync_status=PENDING_UPLOAD&limit=5'
+                });
+                
+                if (pendingRecords.success && pendingRecords.data.length > 0) {
+                    log('Step 3 - Found ' + pendingRecords.data.length + ' records to upload');
+                    
+                    // 4. Upload to Supabase
+                    const uploadResult = await supabaseService.uploadRecords('default', pendingRecords.data);
+                    log('Step 4 - Upload result: ' + uploadResult.uploaded + ' uploaded, ' + uploadResult.failed + ' failed');
+                    
+                    // 5. Update local status
+                    for (const record of pendingRecords.data) {
+                        await window.electronAPI.request({
+                            method: 'POST',
+                            url: '/api/sync/submit/' + record.id,
+                            body: { lgu_id: 'default' }
+                        });
+                    }
+                    
+                    log('✅ Sync completed!');
+                } else {
+                    log('No records found to upload');
+                }
+                
+            } catch (error) {
+                log('Sync Error: ' + error.message, true);
+                console.error(error);
+            }
+        };
+    </script>
+</body>
+</html>

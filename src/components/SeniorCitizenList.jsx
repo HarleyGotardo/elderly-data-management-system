@@ -73,7 +73,7 @@ const SeniorCitizenList = () => {
       
       const response = await window.electronAPI.request({
         method: 'GET',
-        path: '/senior-citizens',
+        url: '/api/senior-citizens',
         query
       });
       
@@ -95,7 +95,7 @@ const SeniorCitizenList = () => {
     try {
       const response = await window.electronAPI.request({
         method: 'GET',
-        path: '/senior-citizens/stats'
+        url: '/api/senior-citizens/stats'
       });
       
       if (response.data && response.data.success) {
@@ -124,7 +124,7 @@ const SeniorCitizenList = () => {
     try {
       const response = await window.electronAPI.request({
         method: 'DELETE',
-        path: `/senior-citizens/${id}`
+        url: `/api/senior-citizens/${id}`
       });
       
       if (response.data && response.data.success) {
@@ -146,7 +146,7 @@ const SeniorCitizenList = () => {
     try {
       const response = await window.electronAPI.request({
         method: 'POST',
-        path: `/senior-citizens/${id}/submit`
+        url: `/api/senior-citizens/${id}/submit`
       });
       
       if (response.data && response.data.success) {
@@ -170,7 +170,7 @@ const SeniorCitizenList = () => {
       
       const response = await window.electronAPI.request({
         method: 'GET',
-        path: '/senior-citizens/export',
+        url: '/api/senior-citizens/export',
         query
       });
       
@@ -208,7 +208,7 @@ const SeniorCitizenList = () => {
         
         const response = await window.electronAPI.request({
           method: 'POST',
-          path: '/senior-citizens/import',
+          url: '/api/senior-citizens/import',
           body: data
         });
         

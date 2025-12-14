@@ -8,7 +8,7 @@ export default defineConfig({
   ],
   build: {
     rollupOptions: {
-      external: ['better-sqlite3', 'electron-squirrel-startup'],
+      external: ['better-sqlite3', 'electron-squirrel-startup', '@supabase/supabase-js'],
       output: {
         format: 'cjs'
       }
