@@ -3,6 +3,7 @@ import SeniorCitizenList from './components/SeniorCitizenList';
 import SeniorCitizenForm from './components/SeniorCitizenForm';
 import LoginPage from './components/LoginPage';
 import UserManagement from './components/UserManagement';
+import SupabaseTableViewer from './components/SupabaseTableViewer';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Swal from 'sweetalert2';
 
@@ -128,6 +129,17 @@ const Dashboard = () => {
                 <div className="button-icon">👤</div>
                 <div className="button-text">User Management</div>
                 <div className="button-subtext">Manage system users</div>
+              </button>
+            )}
+            
+            {currentUser?.role === 'Super Admin' && (
+              <button 
+                className="dashboard-button primary"
+                onClick={() => window.location.hash = '#/admin/database'}
+              >
+                <div className="button-icon">🗄️</div>
+                <div className="button-text">Online Database</div>
+                <div className="button-subtext">View Supabase tables</div>
               </button>
             )}
             
@@ -320,6 +332,8 @@ const AppContent = () => {
         setEditingSeniorId(seniorId);
       } else if (hash === '/user-management') {
         setCurrentView('user-management');
+      } else if (hash === '/admin/database') {
+        setCurrentView('database');
       }
     };
 
@@ -397,6 +411,8 @@ const AppContent = () => {
         );
       case 'user-management':
         return <UserManagement />;
+      case 'database':
+        return <SupabaseTableViewer />;
       default:
         return <Dashboard />;
     }
