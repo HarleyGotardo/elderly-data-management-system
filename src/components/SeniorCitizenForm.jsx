@@ -884,7 +884,7 @@ const SeniorCitizenForm = ({ seniorId, onSave, onCancel }) => {
           padding: 25px;
           border-radius: 0;
           box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-          margin-bottom: 20px;
+          margin-bottom: 25px;
           border: 1px solid #dee2e6;
         }
 
@@ -905,6 +905,8 @@ const SeniorCitizenForm = ({ seniorId, onSave, onCancel }) => {
 
         .form-group {
           flex: 1;
+          margin-bottom: 20px;
+          min-width: 0;
         }
 
         .form-group label {
@@ -928,6 +930,7 @@ const SeniorCitizenForm = ({ seniorId, onSave, onCancel }) => {
           background: white;
           box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15), inset 0 1px 2px rgba(0, 0, 0, 0.1);
           color: #495057;
+          box-sizing: border-box;
         }
         
         .form-group input:focus,

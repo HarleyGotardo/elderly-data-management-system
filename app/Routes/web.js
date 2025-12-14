@@ -1,7 +1,21 @@
 import Router from './Router.js';
 import SeniorCitizenController from '../Controllers/SeniorCitizenController.js';
+import AuthController from '../Controllers/AuthController.js';
+import UserController from '../Controllers/UserController.js';
 
 const router = new Router();
+
+// Authentication routes
+router.post('/auth/login', { controller: AuthController, method: 'login' });
+router.get('/auth/verify/{id}', { controller: AuthController, method: 'verify' });
+router.post('/auth/me', { controller: AuthController, method: 'me' });
+
+// User Management routes
+router.get('/users', { controller: UserController, method: 'index' });
+router.get('/users/{id}', { controller: UserController, method: 'show' });
+router.post('/users', { controller: UserController, method: 'store' });
+router.put('/users/{id}', { controller: UserController, method: 'update' });
+router.delete('/users/{id}', { controller: UserController, method: 'destroy' });
 
 // Senior Citizen routes - Static routes first
 router.get('/senior-citizens/export', { controller: SeniorCitizenController, method: 'export' });

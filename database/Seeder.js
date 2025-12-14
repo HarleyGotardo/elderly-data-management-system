@@ -1,11 +1,13 @@
 const fs = require('fs');
 const path = require('path');
 const db = require('./config');
+const DatabaseSeeder = require('./seeders/DatabaseSeeder');
 
 class Seeder {
   constructor() {
     this.seedersPath = path.join(__dirname, 'seeders');
     this.ensureSeedersTable();
+    this.databaseSeeder = new DatabaseSeeder();
   }
 
   ensureSeedersTable() {
@@ -32,36 +34,26 @@ class Seeder {
   }
 
   async runSeeders() {
-    const seederFiles = fs.readdirSync(this.seedersPath)
-      .filter(file => file.endsWith('.js'))
-      .sort();
-
+    // Check if DatabaseSeeder has been run
     const executedSeeders = this.getExecutedSeeders();
-    const pendingSeeders = seederFiles.filter(file => !executedSeeders.includes(file));
-
-    if (pendingSeeders.length === 0) {
-      console.log('No pending seeders.');
+    if (executedSeeders.includes('DatabaseSeeder')) {
+      console.log('DatabaseSeeder already executed. Use seeder:reset to run again.');
       return;
     }
 
-    for (const file of pendingSeeders) {
-      try {
-        const seeder = require(path.join(this.seedersPath, file));
-        
-        console.log('Running seeder: ' + file);
-        await seeder.run();
-
-        const stmt = db.prepare('INSERT INTO seeders (seeder) VALUES (?)');
-        stmt.run(file);
-
-        console.log('Seeder completed: ' + file);
-      } catch (error) {
-        console.error('Error running seeder ' + file + ':', error);
-        throw error;
-      }
+    try {
+      console.log('Running DatabaseSeeder...');
+      await this.databaseSeeder.run();
+      
+      // Mark as executed
+      const stmt = db.prepare('INSERT INTO seeders (seeder) VALUES (?)');
+      stmt.run('DatabaseSeeder');
+      
+      console.log('DatabaseSeeder completed successfully!');
+    } catch (error) {
+      console.error('Error running DatabaseSeeder:', error);
+      throw error;
     }
-
-    console.log('All seeders completed!');
   }
 
   getExecutedSeeders() {

@@ -1,52 +1,232 @@
-# Electron MVC Framework Template
+# Elderly Data Management System
 
-A Laravel-inspired MVC architecture template for building desktop applications with Electron, React, and SQLite.
+An Electron-based desktop application for managing senior citizen records with authentication and user management features.
 
-## 🚀 Features
+## 🚀 Quick Start
 
-- **MVC Architecture**: Models, Controllers, and Views separation
-- **Active Record Pattern**: Easy database operations with Model base class
-- **Database Migrations**: Version control for your database schema
-- **Database Seeders**: Populate your database with initial data
-- **CLI Commands**: Generate controllers, models, views, and resources
-- **IPC Communication**: Secure communication between main and renderer processes
-- **React Components**: Pre-built CRUD component templates
-- **SQLite Database**: Lightweight, file-based database
+### Prerequisites
+- Node.js (v18 or higher)
+- npm (comes with Node.js)
+
+### Installation & Setup
+
+1. **Clone the repository:**
+```bash
+git clone <repository-url>
+cd elderly-data-management-system
+```
+
+2. **Install dependencies:**
+```bash
+npm install
+```
+
+3. **Rebuild native modules for Electron:**
+```bash
+npm run rebuild:electron
+```
+
+4. **Set up the database:**
+```bash
+# Fresh migration (drops all tables and recreates them)
+npm run migrate:fresh
+
+# Seed the database with test data (users and sample senior citizens)
+npm run db:seed
+```
+
+5. **Start the application:**
+```bash
+npm start
+```
+
+## 📋 Default Login Credentials
+
+After running the seeders, you can use these accounts to log in:
+
+| Role | Username | Password |
+|------|----------|----------|
+| Super Admin | superadmin | password123 |
+| Admin | admin | password123 |
+| Client | client | password123 |
 
 ## 📁 Project Structure
 
 ```
-├── app/
-│   ├── Commands/          # CLI command generators
-│   │   ├── cli.js         # Main CLI entry point
-│   │   ├── MakeController.js
-│   │   ├── MakeModel.js
-│   │   └── MakeView.js
-│   ├── Controllers/       # Application controllers
-│   │   └── Controller.js  # Base controller class
-│   ├── Models/           # Application models
-│   │   └── Model.js      # Base model class
-│   ├── Routes/           # Route definitions
-│   │   ├── Router.js     # Router class
-│   │   └── web.js        # Web routes (empty - add your routes)
-│   └── Views/            # React components (empty - create your views)
-├── database/
-│   ├── config.js         # Database configuration
-│   ├── migrations/       # Migration files (empty)
-│   ├── seeders/          # Seeder files (empty)
-│   ├── Migration.js      # Migration manager
-│   ├── Seeder.js         # Seeder manager
-│   └── cli.js           # Database CLI
-├── src/
-│   ├── components/       # React components (empty)
-│   ├── main.js          # Electron main process
-│   ├── preload.js       # Preload script
-│   ├── renderer.jsx     # React entry point
-│   └── App.jsx          # Main React app
-└── package.json
+elderly-data-management-system/
+├── app/                          # Backend application logic
+│   ├── Controllers/              # API Controllers
+│   │   ├── AuthController.js     # Authentication logic
+│   │   ├── SeniorCitizenController.js # Senior citizen CRUD
+│   │   └── UserController.js     # User management
+│   ├── Models/                   # Data models
+│   └── Routes/                   # API routes
+│       ├── Router.js             # Route handler class
+│       └── web.js                # Route definitions
+├── database/                     # Database related files
+│   ├── config.js                 # Database configuration
+│   ├── migrations/               # Migration files
+│   │   ├── 2025-12-14T08-06-04_create_senior_citizens_table.js
+│   │   └── 2025-12-14T19-38-00_create_users_table.js
+│   ├── seeders/                  # Seeder files
+│   │   ├── DatabaseSeeder.js     # Master seeder
+│   │   ├── UserSeeder.js         # User data seeder
+│   │   └── SeniorCitizenSeeder.js # Senior citizen data seeder
+│   ├── autoMigrate.js            # Auto-migration script (manual use only)
+│   ├── migrateFresh.js            # Fresh migration script
+│   ├── Migration.js              # Migration class
+│   ├── Seeder.js                 # Seeder class
+│   └── cli.js                    # Database CLI tool
+├── src/                          # Frontend source code
+│   ├── components/               # React components
+│   │   ├── LoginPage.jsx         # Login page
+│   │   ├── SeniorCitizenForm.jsx # Senior citizen form
+│   │   ├── SeniorCitizenList.jsx # Senior citizen list
+│   │   └── UserManagement.jsx    # User management interface
+│   ├── contexts/                 # React contexts
+│   │   └── AuthContext.jsx       # Authentication context
+│   ├── App.jsx                   # Main application component
+│   ├── main.js                   # Electron main process
+│   └── preload.js                # Electron preload script
+└── resources/                    # Application resources
+    └── icon.png                  # Application icon
 ```
 
-## 🛠️ Installation
+## 🛠️ Available Scripts
+
+### Database Operations
+- `npm run migrate:fresh` - Drop all tables, recreate them, and seed with initial data
+- `npm run db:seed` - Run all seeders to populate database with test data
+- `npm run db:migrate` - Run migrations without seeding
+- `npm run migration:run` - Run pending migrations
+- `npm run migration:rollback` - Rollback last batch of migrations
+- `npm run migration:reset` - Rollback all migrations
+
+### Development
+- `npm start` - Start the application in development mode
+- `npm run rebuild:electron` - Rebuild native modules for Electron
+- `npm run rebuild:node` - Rebuild native modules for Node.js
+
+### Code Generation
+- `npm run make:controller <name>` - Create a new controller
+- `npm run make:model <name>` - Create a new model
+- `npm run make:view <name>` - Create a new view
+- `npm run make:resource <name>` - Create a full resource (controller, model, views)
+
+## 📊 Database Schema
+
+### Users Table
+- `id` - Primary key
+- `username` - Unique username
+- `password_hash` - Hashed password
+- `role` - User role (Client, Admin, Super Admin)
+- `created_at`, `updated_at` - Timestamps
+
+### Senior Citizens Table
+Complete senior citizen information including:
+- Personal details (name, birth date, sex, civil status)
+- Address information
+- Representative contacts
+- Beneficiary information
+- Status tracking (Draft, Pending, Approved, etc.)
+
+## 🔧 Development Guidelines
+
+### Adding New Features
+
+1. **Controllers**: Create in `app/Controllers/`
+2. **Routes**: Register in `app/Routes/web.js`
+3. **Components**: Create in `src/components/`
+4. **Database Changes**: Create migration in `database/migrations/`
+
+### Database Migrations
+
+Create a new migration:
+```bash
+npm run migration:create <migration_name>
+```
+
+Run migrations:
+```bash
+npm run migration:run
+```
+
+### Database Seeders
+
+Create a new seeder:
+```bash
+npm run seeder:create <seeder_name>
+```
+
+Run seeders:
+```bash
+npm run seeder:run
+```
+
+## 🔧 Troubleshooting
+
+### Common Issues
+
+1. **"Cannot find module" or "NODE_MODULE_VERSION mismatch" error**
+   - Run: `npm run rebuild:electron`
+   - This rebuilds native modules for Electron's Node version
+
+2. **Database not found or empty**
+   - Run: `npm run migrate:fresh`
+   - This creates the database and runs all migrations
+
+3. **No test data or users**
+   - Run: `npm run db:seed`
+   - This populates the database with sample data
+
+### Resetting the Database
+
+To completely reset and reseed the database:
+```bash
+npm run migrate:fresh
+npm run db:seed
+```
+
+## � Quick Setup for New Developers
+
+For the fastest setup after cloning, run this single command:
+```bash
+npm run setup
+```
+
+This command will:
+- Install all dependencies
+- Rebuild native modules for Electron
+- Create and migrate the database
+- Seed with test data (users and sample senior citizens)
+
+After setup completes, simply run:
+```bash
+npm start
+```
+
+## �📝 Important Notes
+
+- The application uses SQLite for data storage (database file: `database/database.sqlite`)
+- Passwords are hashed using bcryptjs
+- Authentication uses JWT tokens stored in localStorage
+- **Database setup is required before first run** - see installation steps
+- All database operations are handled through the custom CLI tool
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly:
+   - Run migrations
+   - Test seeders
+   - Verify all features work
+5. Submit a pull request
+
+## 📄 License
+
+MIT License
 
 1. Clone the repository
 2. Install dependencies:

@@ -1,5 +1,5 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
-import path from 'node:path';
+const { app, BrowserWindow, ipcMain } = require('electron');
+const path = require('path');
 import router from '../app/Routes/web.js';
 
 const createWindow = () => {
