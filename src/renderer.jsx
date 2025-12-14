@@ -1,12 +1,5 @@
 import { createRoot } from 'react-dom/client';
-import Profile from './components/Profile';
-const App = () =>{
-  return (
-  <>
-    <Profile />
-  </>
-  );
-}
+import App from './App';
 
 const root = createRoot(document.getElementById('root'));
 root.render(<App />);

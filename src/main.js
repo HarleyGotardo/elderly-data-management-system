@@ -1,6 +1,7 @@
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, ipcMain } from 'electron';
 import path from 'node:path';
 import started from 'electron-squirrel-startup';
+import router from '../app/Routes/web.js';
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
@@ -54,3 +55,24 @@ app.on('window-all-closed', () => {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
+
+// IPC handler for API requests
+ipcMain.handle('api-request', async (event, { method, path, body, query }) => {
+  try {
+    const request = {
+      method,
+      path,
+      body,
+      query: query || {}
+    };
+
+    const response = await router.handle(request);
+    return response;
+  } catch (error) {
+    console.error('IPC API Error:', error);
+    return {
+      status: 500,
+      data: { success: false, message: 'Internal server error' }
+    };
+  }
+});

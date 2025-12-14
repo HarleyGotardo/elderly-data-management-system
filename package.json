@@ -7,9 +7,25 @@
   "scripts": {
     "start": "electron-forge start",
     "package": "electron-forge package",
-    "make": "electron-forge make",
+    "make:exe": "electron-forge make",
     "publish": "electron-forge publish",
-    "lint": "echo \"No linting configured\""
+    "lint": "echo \"No linting configured\"",
+    "db": "node database/cli.js",
+    "migration:create": "node database/cli.js migration:create",
+    "migration:run": "node database/cli.js migration:run",
+    "migration:rollback": "node database/cli.js migration:rollback",
+    "migration:reset": "node database/cli.js migration:reset",
+    "seeder:create": "node database/cli.js seeder:create",
+    "seeder:run": "node database/cli.js seeder:run",
+    "seeder:reset": "node database/cli.js seeder:reset",
+    "db:fresh": "node database/cli.js fresh",
+    "db:seed": "node database/cli.js seed",
+    "db:migrate": "node database/cli.js migrate",
+    "make": "node app/Commands/cli.js",
+    "make:controller": "node app/Commands/cli.js controller",
+    "make:model": "node app/Commands/cli.js model",
+    "make:view": "node app/Commands/cli.js view",
+    "make:resource": "node app/Commands/cli.js resource"
   },
   "keywords": [],
   "author": {
@@ -32,6 +48,8 @@
   },
   "dependencies": {
     "@vitejs/plugin-react": "^5.1.2",
+    "better-sqlite3": "^12.5.0",
+    "commander": "^14.0.2",
     "electron-squirrel-startup": "^1.0.1",
     "react": "^19.2.3",
     "react-dom": "^19.2.3"
